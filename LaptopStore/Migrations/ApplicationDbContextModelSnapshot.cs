@@ -77,6 +77,9 @@ namespace LaptopStore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LaptopID"));
 
+                    b.Property<int>("BatteryHealth")
+                        .HasColumnType("int");
+
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -97,22 +100,32 @@ namespace LaptopStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("ImportPrice")
+                        .HasColumnType("real");
+
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
+                    b.Property<string>("OperatingSystem")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RAM")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StorageSize")
+                    b.Property<float>("ScreenSize")
+                        .HasColumnType("real");
+
+                    b.Property<float>("SellingPrice")
+                        .HasColumnType("real");
+
+                    b.Property<string>("SerialNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StorageType")
+                    b.Property<string>("Storage")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -124,30 +137,38 @@ namespace LaptopStore.Migrations
                         new
                         {
                             LaptopID = 1,
+                            BatteryHealth = 95,
                             Brand = "Dell",
-                            CPU = "Intel i7",
-                            Description = "Dell high-end laptop",
-                            GPU = "RTX 3050",
+                            CPU = "Intel i7-11800H",
+                            Description = "Dell high-end laptop, powerful and sleek",
+                            GPU = "NVIDIA RTX 3050",
                             ImageURL = "dell_xps.jpg",
+                            ImportPrice = 1200f,
                             Model = "XPS 15",
-                            Price = 1500f,
+                            OperatingSystem = "Windows 11",
                             RAM = "16GB",
-                            StorageSize = "512GB",
-                            StorageType = "SSD"
+                            ScreenSize = 15.6f,
+                            SellingPrice = 1500f,
+                            SerialNumber = "SN12345678",
+                            Storage = "512GB SSD"
                         },
                         new
                         {
                             LaptopID = 2,
+                            BatteryHealth = 98,
                             Brand = "Apple",
-                            CPU = "M1",
-                            Description = "Apple MacBook Pro M1",
-                            GPU = "M1 GPU",
+                            CPU = "Apple M1",
+                            Description = "Apple MacBook Pro M1 chip, excellent battery life",
+                            GPU = "Apple M1 GPU",
                             ImageURL = "macbook_pro.jpg",
+                            ImportPrice = 1700f,
                             Model = "MacBook Pro",
-                            Price = 2000f,
+                            OperatingSystem = "macOS Sonoma",
                             RAM = "16GB",
-                            StorageSize = "1TB",
-                            StorageType = "SSD"
+                            ScreenSize = 13.3f,
+                            SellingPrice = 2000f,
+                            SerialNumber = "SN87654321",
+                            Storage = "1TB SSD"
                         });
                 });
 

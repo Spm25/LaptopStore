@@ -63,11 +63,46 @@ public class ApplicationDbContext : DbContext
             new OrderDetail { OrderDetailID = 2, OrderID = 2, ProductID = 1, ProductType = ProductType.RAM, Quantity = 2, UnitPrice = 45.0f, WarrantyPeriod = "6 tháng" }
         );
 
-        // Seed Laptops
         modelBuilder.Entity<Laptop>().HasData(
-            new Laptop { LaptopID = 1, Brand = "Dell", Model = "XPS 15", CPU = "Intel i7", RAM = "16GB", StorageType = "SSD", StorageSize = "512GB", GPU = "RTX 3050", Price = 1500, Description = "Dell high-end laptop", ImageURL = "dell_xps.jpg" },
-            new Laptop { LaptopID = 2, Brand = "Apple", Model = "MacBook Pro", CPU = "M1", RAM = "16GB", StorageType = "SSD", StorageSize = "1TB", GPU = "M1 GPU", Price = 2000, Description = "Apple MacBook Pro M1", ImageURL = "macbook_pro.jpg" }
+            new Laptop
+            {
+                LaptopID = 1,
+                Brand = "Dell",
+                Model = "XPS 15",
+                SerialNumber = "SN12345678",
+                CPU = "Intel i7-11800H",
+                RAM = "16GB",
+                Storage = "512GB SSD",
+                GPU = "NVIDIA RTX 3050",
+                ImportPrice = 1200,
+                SellingPrice = 1500,
+                Description = "Dell high-end laptop, powerful and sleek",
+                ImageURL = "dell_xps.jpg",
+                ScreenSize = 15.6f,
+                OperatingSystem = "Windows 11",
+                BatteryHealth = 95
+            },
+            new Laptop
+            {
+                LaptopID = 2,
+                Brand = "Apple",
+                Model = "MacBook Pro",
+                SerialNumber = "SN87654321",
+                CPU = "Apple M1",
+                RAM = "16GB",
+                Storage = "1TB SSD",
+                GPU = "Apple M1 GPU",
+                ImportPrice = 1700,
+                SellingPrice = 2000,
+                Description = "Apple MacBook Pro M1 chip, excellent battery life",
+                ImageURL = "macbook_pro.jpg",
+                ScreenSize = 13.3f,
+                OperatingSystem = "macOS Sonoma",
+                BatteryHealth = 98
+            }
         );
+
+
 
         // Seed RAM
         modelBuilder.Entity<RAM>().HasData(
