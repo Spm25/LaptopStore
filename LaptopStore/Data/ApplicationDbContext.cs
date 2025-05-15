@@ -17,6 +17,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<StorageDevice> StorageDevices { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<Service> Services { get; set; }
+
     public DbSet<OrderDetail> OrderDetails { get; set; }
     public DbSet<User> Users { get; set; }
 
@@ -61,6 +63,13 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<OrderDetail>().HasData(
             new OrderDetail { OrderDetailID = 1, OrderID = 1, ProductID = 1, ProductType = ProductType.Laptop, Quantity = 1, UnitPrice = 1500.0f, WarrantyPeriod = "12 tháng" },
             new OrderDetail { OrderDetailID = 2, OrderID = 2, ProductID = 1, ProductType = ProductType.RAM, Quantity = 2, UnitPrice = 45.0f, WarrantyPeriod = "6 tháng" }
+        );
+
+        //seed service 
+        modelBuilder.Entity<Service>().HasData(
+            new Service { ServiceID = 1, ServiceName = "Vệ sinh máy", Price = 100000, Description = "Vệ sinh quạt tản nhiệt, bôi keo" },
+            new Service { ServiceID = 2, ServiceName = "Nâng cấp RAM", Price = 150000, Description = "Phí nâng cấp RAM cho máy khách" },
+            new Service { ServiceID = 3, ServiceName = "Thay keo tản nhiệt", Price = 80000, Description = "Keo tản nhiệt chất lượng cao" }
         );
 
         modelBuilder.Entity<Laptop>().HasData(
