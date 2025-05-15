@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LaptopStore.Models
 {
@@ -22,12 +23,14 @@ namespace LaptopStore.Models
         public float ImportPrice { get; set; }
         public float SellingPrice { get; set; }
 
-        public string Description { get; set; }
-        public string ImageURL { get; set; }
+        public string Description { get; set; } // Không required
+        public string ImageURL { get; set; }    // Không required
 
         public float ScreenSize { get; set; }          // inch
         public string OperatingSystem { get; set; }    // Hệ điều hành
         public int BatteryHealth { get; set; }         // % tình trạng pin
-    }
 
+        [Required]
+        public bool IsSold { get; set; } = false; // Mặc định là chưa bán
+    }
 }

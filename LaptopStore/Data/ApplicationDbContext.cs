@@ -43,8 +43,8 @@ public class ApplicationDbContext : DbContext
 
         // Seed Users
         modelBuilder.Entity<User>().HasData(
-            new User { UserID = 1, UserName = "admin", Password = "123456", Role = 1 },
-            new User { UserID = 2, UserName = "employee", Password = "password", Role = 2 }
+            new User { UserID = 1, UserName = "admin", Password = "123456", Role = UserRole.Admin },
+            new User { UserID = 2, UserName = "staff", Password = "123456", Role = UserRole.Staff }
         );
 
         // Seed Customers

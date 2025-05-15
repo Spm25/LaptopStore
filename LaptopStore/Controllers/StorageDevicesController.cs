@@ -10,22 +10,22 @@ using LaptopStore.Models;
 
 namespace LaptopStore.Controllers
 {
-    public class LaptopsController : Controller
+    public class StorageDevicesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public LaptopsController(ApplicationDbContext context)
+        public StorageDevicesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Laptops
+        // GET: StorageDevices
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Laptops.ToListAsync());
+            return View(await _context.StorageDevices.ToListAsync());
         }
 
-        // GET: Laptops/Details/5
+        // GET: StorageDevices/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops
-                .FirstOrDefaultAsync(m => m.LaptopID == id);
-            if (laptop == null)
+            var storageDevice = await _context.StorageDevices
+                .FirstOrDefaultAsync(m => m.StorageID == id);
+            if (storageDevice == null)
             {
                 return NotFound();
             }
 
-            return View(laptop);
+            return View(storageDevice);
         }
 
-        // GET: Laptops/Create
+        // GET: StorageDevices/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Laptops/Create
+        // POST: StorageDevices/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LaptopID,Brand,Model,SerialNumber,CPU,RAM,Storage,GPU,ImportPrice,SellingPrice,Description,ImageURL,ScreenSize,OperatingSystem,BatteryHealth,IsSold")] Laptop laptop)
+        public async Task<IActionResult> Create([Bind("StorageID,Type,Capacity,Quantity,Quality")] StorageDevice storageDevice)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(laptop);
+                _context.Add(storageDevice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(laptop);
+            return View(storageDevice);
         }
 
-        // GET: Laptops/Edit/5
+        // GET: StorageDevices/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops.FindAsync(id);
-            if (laptop == null)
+            var storageDevice = await _context.StorageDevices.FindAsync(id);
+            if (storageDevice == null)
             {
                 return NotFound();
             }
-            return View(laptop);
+            return View(storageDevice);
         }
 
-        // POST: Laptops/Edit/5
+        // POST: StorageDevices/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("LaptopID,Brand,Model,SerialNumber,CPU,RAM,Storage,GPU,ImportPrice,SellingPrice,Description,ImageURL,ScreenSize,OperatingSystem,BatteryHealth,IsSold")] Laptop laptop)
+        public async Task<IActionResult> Edit(int id, [Bind("StorageID,Type,Capacity,Quantity,Quality")] StorageDevice storageDevice)
         {
-            if (id != laptop.LaptopID)
+            if (id != storageDevice.StorageID)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace LaptopStore.Controllers
             {
                 try
                 {
-                    _context.Update(laptop);
+                    _context.Update(storageDevice);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LaptopExists(laptop.LaptopID))
+                    if (!StorageDeviceExists(storageDevice.StorageID))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace LaptopStore.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(laptop);
+            return View(storageDevice);
         }
 
-        // GET: Laptops/Delete/5
+        // GET: StorageDevices/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,34 +124,34 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops
-                .FirstOrDefaultAsync(m => m.LaptopID == id);
-            if (laptop == null)
+            var storageDevice = await _context.StorageDevices
+                .FirstOrDefaultAsync(m => m.StorageID == id);
+            if (storageDevice == null)
             {
                 return NotFound();
             }
 
-            return View(laptop);
+            return View(storageDevice);
         }
 
-        // POST: Laptops/Delete/5
+        // POST: StorageDevices/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var laptop = await _context.Laptops.FindAsync(id);
-            if (laptop != null)
+            var storageDevice = await _context.StorageDevices.FindAsync(id);
+            if (storageDevice != null)
             {
-                _context.Laptops.Remove(laptop);
+                _context.StorageDevices.Remove(storageDevice);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LaptopExists(int id)
+        private bool StorageDeviceExists(int id)
         {
-            return _context.Laptops.Any(e => e.LaptopID == id);
+            return _context.StorageDevices.Any(e => e.StorageID == id);
         }
     }
 }

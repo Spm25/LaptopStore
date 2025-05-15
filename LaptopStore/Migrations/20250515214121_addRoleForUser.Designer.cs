@@ -4,6 +4,7 @@ using LaptopStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaptopStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515214121_addRoleForUser")]
+    partial class addRoleForUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,9 +106,6 @@ namespace LaptopStore.Migrations
                     b.Property<float>("ImportPrice")
                         .HasColumnType("real");
 
-                    b.Property<bool>("IsSold")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -147,7 +147,6 @@ namespace LaptopStore.Migrations
                             GPU = "NVIDIA RTX 3050",
                             ImageURL = "dell_xps.jpg",
                             ImportPrice = 1200f,
-                            IsSold = false,
                             Model = "XPS 15",
                             OperatingSystem = "Windows 11",
                             RAM = "16GB",
@@ -166,7 +165,6 @@ namespace LaptopStore.Migrations
                             GPU = "Apple M1 GPU",
                             ImageURL = "macbook_pro.jpg",
                             ImportPrice = 1700f,
-                            IsSold = false,
                             Model = "MacBook Pro",
                             OperatingSystem = "macOS Sonoma",
                             RAM = "16GB",

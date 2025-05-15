@@ -101,8 +101,8 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                              with font-awesome or any other icon font library -->
-                        <li class="nav-item @IsMenuOpen("Laptops", "LaptopBatteries", "LaptopChargers", "LaptopScreen", "StorageDevice", "Ram")">
-                            <a href="#" class="nav-link @(IsAnyActive("Laptops", "LaptopBatteries", "LaptopChargers", "LaptopScreen", "StorageDevice", "Ram"))">
+                        <li class="nav-item @IsMenuOpen("Laptops", "LaptopBatteries", "LaptopChargers", "LaptopScreens", "StorageDevices", "RAMs", "Services")">
+                            <a href="#" class="nav-link @(IsAnyActive("Laptops", "LaptopBatteries", "LaptopChargers", "LaptopScreens", "StorageDevices", "RAMs", "Services"))">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>Quản lý sản phẩm<i class="fas fa-angle-left right"></i></p>
                             </a>
@@ -126,23 +126,29 @@
 									</a>
 								</li>
                                 <li class="nav-item">
-                                    <a asp-controller="LaptopScreen" asp-action="Index" class="nav-link @IsActive("LaptopScreen")">
+                                    <a asp-controller="LaptopScreens" asp-action="Index" class="nav-link @IsActive("LaptopScreens")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Màn</p>
                                     </a>
                                 </li>
 								<li class="nav-item">
-                                    <a asp-controller="StorageDevice" asp-action="Index" class="nav-link @IsActive("StorageDevice")">
+                                    <a asp-controller="StorageDevices" asp-action="Index" class="nav-link @IsActive("StorageDevices")">
 										<i class="far fa-circle nav-icon"></i>
 										<p>Ổ cứng</p>
 									</a>
 								</li>
 								<li class="nav-item">
-									<a asp-controller="Ram" asp-action="Index" class="nav-link @IsActive("Ram")">
+                                    <a asp-controller="RAMs" asp-action="Index" class="nav-link @IsActive("RAMs")">
 										<i class="far fa-circle nav-icon"></i>
 										<p>Ram</p>
 									</a>
 								</li>
+                                <li class="nav-item">
+                                    <a asp-controller="Services" asp-action="Index" class="nav-link @IsActive("Services")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Dịch vụ</p>
+                                    </a>
+                                </li>
                             </ul>
                             
                         </li>
@@ -164,6 +170,12 @@
                                 <p>Quản lý chi tiết đơn hàng</i></p>
                             </a>
                         </li>
+                        <li class="nav-item @IsMenuOpen("Users")">
+                            <a asp-controller="Users" asp-action="Index" class="nav-link @IsActive("Users")">
+                                <i class="nav-icon fas fa-table"></i>
+                                <p>Quản lý nhân sự</i></p>
+                            </a>
+                        </li>
                         <li class="nav-item ">
                             <a asp-controller="Ram" asp-action="Index" class="nav-link">
                                 <i class="nav-icon fas fa-table"></i>
@@ -180,21 +192,7 @@
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0">Header</h1>
-                        </div><!-- /.col -->
-                        @* <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Dashboard v1</li>
-                            </ol>
-                        </div><!-- /.col --> *@
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-            </div>
+            
             <!-- /.content-header -->
             <!-- Main content -->
             <section class="content">

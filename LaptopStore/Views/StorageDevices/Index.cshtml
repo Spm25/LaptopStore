@@ -1,4 +1,4 @@
-﻿@model IEnumerable<LaptopStore.Models.LaptopBattery>
+﻿@model IEnumerable<LaptopStore.Models.StorageDevice>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,16 +13,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.LaptopModel)
+                @Html.DisplayNameFor(model => model.Type)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Capacity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UsedStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Quantity)
@@ -37,16 +31,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.LaptopModel)
+                @Html.DisplayFor(modelItem => item.Type)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Capacity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UsedStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Quantity)
@@ -55,9 +43,9 @@
                 @Html.DisplayFor(modelItem => item.Quality)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.BatteryID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.BatteryID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.BatteryID">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.StorageID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.StorageID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.StorageID">Delete</a>
             </td>
         </tr>
 }

@@ -4,110 +4,61 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Danh sách Laptop</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Thêm mới</a>
 </p>
-<table class="table">
+
+<table class="table table-bordered">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Brand)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SerialNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CPU)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RAM)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Storage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GPU)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImportPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SellingPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageURL)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ScreenSize)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OperatingSystem)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BatteryHealth)
-            </th>
-            <th></th>
+            <th>#</th>
+            <th>Thông tin máy</th>
+            <th>Serial Number</th>
+            <th>Giá nhập</th>
+            <th>Giá bán</th>
+            <th>Mô tả</th>
+            <th>Ảnh</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Brand)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SerialNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CPU)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RAM)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Storage)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GPU)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImportPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SellingPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageURL)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ScreenSize)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OperatingSystem)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BatteryHealth)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.LaptopID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.LaptopID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.LaptopID">Delete</a>
-            </td>
-        </tr>
-}
+        @{
+            int index = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>
+                        <strong>Hãng:</strong> @item.Brand <br />
+                        <strong>Model:</strong> @item.Model <br />
+                        <strong>CPU:</strong> @item.CPU <br />
+                        <strong>RAM:</strong> @item.RAM <br />
+                        <strong>Ổ cứng:</strong> @item.Storage <br />
+                        <strong>GPU:</strong> @item.GPU <br />
+                        <strong>HĐH:</strong> @item.OperatingSystem <br />
+                        <strong>Màn hình:</strong> @item.ScreenSize <br />
+                        <strong>Pin:</strong> @item.BatteryHealth
+                    </td>
+                    <td>@item.SerialNumber</td>
+                    <td>@item.ImportPrice.ToString("N0") đ</td>
+                    <td>@item.SellingPrice.ToString("N0") đ</td>
+                    <td>@item.Description</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageURL))
+                        {
+                            <img src="@item.ImageURL" alt="Laptop Image" style="max-width: 100px;" />
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.LaptopID" class="btn btn-sm btn-warning">Sửa</a><br />
+                        <a asp-action="Details" asp-route-id="@item.LaptopID" class="btn btn-sm btn-info">Chi tiết</a><br />
+                        <a asp-action="Delete" asp-route-id="@item.LaptopID" class="btn btn-sm btn-danger">Xoá</a>
+                    </td>
+                </tr>
+                index++;
+            }
+        }
     </tbody>
 </table>

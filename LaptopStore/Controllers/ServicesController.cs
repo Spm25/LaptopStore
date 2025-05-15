@@ -10,22 +10,22 @@ using LaptopStore.Models;
 
 namespace LaptopStore.Controllers
 {
-    public class LaptopsController : Controller
+    public class ServicesController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public LaptopsController(ApplicationDbContext context)
+        public ServicesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Laptops
+        // GET: Services
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Laptops.ToListAsync());
+            return View(await _context.Services.ToListAsync());
         }
 
-        // GET: Laptops/Details/5
+        // GET: Services/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops
-                .FirstOrDefaultAsync(m => m.LaptopID == id);
-            if (laptop == null)
+            var service = await _context.Services
+                .FirstOrDefaultAsync(m => m.ServiceID == id);
+            if (service == null)
             {
                 return NotFound();
             }
 
-            return View(laptop);
+            return View(service);
         }
 
-        // GET: Laptops/Create
+        // GET: Services/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Laptops/Create
+        // POST: Services/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LaptopID,Brand,Model,SerialNumber,CPU,RAM,Storage,GPU,ImportPrice,SellingPrice,Description,ImageURL,ScreenSize,OperatingSystem,BatteryHealth,IsSold")] Laptop laptop)
+        public async Task<IActionResult> Create([Bind("ServiceID,ServiceName,Price,Description")] Service service)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(laptop);
+                _context.Add(service);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(laptop);
+            return View(service);
         }
 
-        // GET: Laptops/Edit/5
+        // GET: Services/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops.FindAsync(id);
-            if (laptop == null)
+            var service = await _context.Services.FindAsync(id);
+            if (service == null)
             {
                 return NotFound();
             }
-            return View(laptop);
+            return View(service);
         }
 
-        // POST: Laptops/Edit/5
+        // POST: Services/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("LaptopID,Brand,Model,SerialNumber,CPU,RAM,Storage,GPU,ImportPrice,SellingPrice,Description,ImageURL,ScreenSize,OperatingSystem,BatteryHealth,IsSold")] Laptop laptop)
+        public async Task<IActionResult> Edit(int id, [Bind("ServiceID,ServiceName,Price,Description")] Service service)
         {
-            if (id != laptop.LaptopID)
+            if (id != service.ServiceID)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace LaptopStore.Controllers
             {
                 try
                 {
-                    _context.Update(laptop);
+                    _context.Update(service);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LaptopExists(laptop.LaptopID))
+                    if (!ServiceExists(service.ServiceID))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace LaptopStore.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(laptop);
+            return View(service);
         }
 
-        // GET: Laptops/Delete/5
+        // GET: Services/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,34 +124,34 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops
-                .FirstOrDefaultAsync(m => m.LaptopID == id);
-            if (laptop == null)
+            var service = await _context.Services
+                .FirstOrDefaultAsync(m => m.ServiceID == id);
+            if (service == null)
             {
                 return NotFound();
             }
 
-            return View(laptop);
+            return View(service);
         }
 
-        // POST: Laptops/Delete/5
+        // POST: Services/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var laptop = await _context.Laptops.FindAsync(id);
-            if (laptop != null)
+            var service = await _context.Services.FindAsync(id);
+            if (service != null)
             {
-                _context.Laptops.Remove(laptop);
+                _context.Services.Remove(service);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LaptopExists(int id)
+        private bool ServiceExists(int id)
         {
-            return _context.Laptops.Any(e => e.LaptopID == id);
+            return _context.Services.Any(e => e.ServiceID == id);
         }
     }
 }

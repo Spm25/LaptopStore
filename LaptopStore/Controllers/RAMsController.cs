@@ -10,22 +10,22 @@ using LaptopStore.Models;
 
 namespace LaptopStore.Controllers
 {
-    public class LaptopsController : Controller
+    public class RAMsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public LaptopsController(ApplicationDbContext context)
+        public RAMsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Laptops
+        // GET: RAMs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Laptops.ToListAsync());
+            return View(await _context.RAMs.ToListAsync());
         }
 
-        // GET: Laptops/Details/5
+        // GET: RAMs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops
-                .FirstOrDefaultAsync(m => m.LaptopID == id);
-            if (laptop == null)
+            var rAM = await _context.RAMs
+                .FirstOrDefaultAsync(m => m.RAMID == id);
+            if (rAM == null)
             {
                 return NotFound();
             }
 
-            return View(laptop);
+            return View(rAM);
         }
 
-        // GET: Laptops/Create
+        // GET: RAMs/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Laptops/Create
+        // POST: RAMs/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LaptopID,Brand,Model,SerialNumber,CPU,RAM,Storage,GPU,ImportPrice,SellingPrice,Description,ImageURL,ScreenSize,OperatingSystem,BatteryHealth,IsSold")] Laptop laptop)
+        public async Task<IActionResult> Create([Bind("RAMID,Capacity,Speed,Type,Quantity,Quality")] RAM rAM)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(laptop);
+                _context.Add(rAM);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(laptop);
+            return View(rAM);
         }
 
-        // GET: Laptops/Edit/5
+        // GET: RAMs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops.FindAsync(id);
-            if (laptop == null)
+            var rAM = await _context.RAMs.FindAsync(id);
+            if (rAM == null)
             {
                 return NotFound();
             }
-            return View(laptop);
+            return View(rAM);
         }
 
-        // POST: Laptops/Edit/5
+        // POST: RAMs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("LaptopID,Brand,Model,SerialNumber,CPU,RAM,Storage,GPU,ImportPrice,SellingPrice,Description,ImageURL,ScreenSize,OperatingSystem,BatteryHealth,IsSold")] Laptop laptop)
+        public async Task<IActionResult> Edit(int id, [Bind("RAMID,Capacity,Speed,Type,Quantity,Quality")] RAM rAM)
         {
-            if (id != laptop.LaptopID)
+            if (id != rAM.RAMID)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace LaptopStore.Controllers
             {
                 try
                 {
-                    _context.Update(laptop);
+                    _context.Update(rAM);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LaptopExists(laptop.LaptopID))
+                    if (!RAMExists(rAM.RAMID))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace LaptopStore.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(laptop);
+            return View(rAM);
         }
 
-        // GET: Laptops/Delete/5
+        // GET: RAMs/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,34 +124,34 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            var laptop = await _context.Laptops
-                .FirstOrDefaultAsync(m => m.LaptopID == id);
-            if (laptop == null)
+            var rAM = await _context.RAMs
+                .FirstOrDefaultAsync(m => m.RAMID == id);
+            if (rAM == null)
             {
                 return NotFound();
             }
 
-            return View(laptop);
+            return View(rAM);
         }
 
-        // POST: Laptops/Delete/5
+        // POST: RAMs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var laptop = await _context.Laptops.FindAsync(id);
-            if (laptop != null)
+            var rAM = await _context.RAMs.FindAsync(id);
+            if (rAM != null)
             {
-                _context.Laptops.Remove(laptop);
+                _context.RAMs.Remove(rAM);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LaptopExists(int id)
+        private bool RAMExists(int id)
         {
-            return _context.Laptops.Any(e => e.LaptopID == id);
+            return _context.RAMs.Any(e => e.RAMID == id);
         }
     }
 }
