@@ -50,7 +50,7 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                
+
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>
@@ -61,6 +61,14 @@
                         <i class="fas fa-th-large"></i>
                     </a>
                 </li>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item d-none d-sm-inline-block">
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="btn btn-link nav-link">Đăng xuất</button>
+                        </form>
+                    </li>
+                }
             </ul>
         </nav>
         <!-- /.navbar -->
@@ -79,9 +87,22 @@
                     <div class="image">
                         <img src="~/AdminLte/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
-                    <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
-                    </div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="info">
+                            <a href="#" class="d-block">
+                                @User.Identity.Name
+                                (@(User.IsInRole("Admin") ? "Quản lý" : "Nhân viên"))
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="info">
+                            <a href="#" class="d-block">Chưa đăng nhập</a>
+                        </div>
+                    }
+
                 </div>
 
                 <!-- SidebarSearch Form -->

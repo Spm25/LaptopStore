@@ -9,9 +9,11 @@ using LaptopStore.Data;
 using LaptopStore.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LaptopStore.Controllers
 {
+    [Authorize]
     public class OrderDetailsController : Controller
     {
         private readonly ApplicationDbContext _context;
