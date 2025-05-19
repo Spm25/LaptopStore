@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<LaptopStore.Models.Laptop>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách Laptop";
 }
 
 <h1>Danh sách Laptop</h1>
@@ -10,7 +10,7 @@
     <a asp-action="Create" class="btn btn-primary">Thêm mới</a>
 </p>
 
-<table class="table table-bordered">
+<table id="example1" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>#</th>
@@ -42,19 +42,16 @@
                         <strong>Pin:</strong> @item.BatteryHealth
                     </td>
                     <td>@item.SerialNumber</td>
-                    <td>@item.ImportPrice.ToString("N0") đ</td>
-                    <td>@item.SellingPrice.ToString("N0") đ</td>
+                    <td>@item.ImportPrice.ToString("N0")</td>
+                    <td>@item.SellingPrice.ToString("N0")</td>
                     <td>@item.Description</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.ImageURL))
-                        {
-                            <img src="@item.ImageURL" alt="Laptop Image" style="max-width: 100px;" />
-                        }
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.LaptopID" class="btn btn-sm btn-warning">Sửa</a><br />
-                        <a asp-action="Details" asp-route-id="@item.LaptopID" class="btn btn-sm btn-info">Chi tiết</a><br />
-                        <a asp-action="Delete" asp-route-id="@item.LaptopID" class="btn btn-sm btn-danger">Xoá</a>
+                    <td>@item.ImageURL</td>
+                    <td class="text-center">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@item.LaptopID" class="btn btn-sm btn-warning btn-block w-100">Sửa</a>
+                            <a asp-action="Details" asp-route-id="@item.LaptopID" class="btn btn-sm btn-info btn-block w-100 mt-1">Chi tiết</a>
+                            <a asp-action="Delete" asp-route-id="@item.LaptopID" class="btn btn-sm btn-danger btn-block w-100 mt-1">Xoá</a>
+                        </div>
                     </td>
                 </tr>
                 index++;
@@ -62,3 +59,26 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#example1").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                "language": {
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+                    "infoEmpty": "Không có dữ liệu",
+                    "zeroRecords": "Không tìm thấy kết quả"
+                }
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+}

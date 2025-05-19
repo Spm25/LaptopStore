@@ -1,53 +1,77 @@
 ﻿@model IEnumerable<LaptopStore.Models.Order>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách đơn hàng";
 }
 
-<h1>Index</h1>
+<h1>Danh sách đơn hàng</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Tạo đơn hàng mới</a>
 </p>
-<table class="table">
+
+<table id="ordersTable" class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Paid)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Customer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
+            <th>#</th>
+            <th>Ngày đặt</th>
+            <th>Đã thanh toán</th>
+            <th>Khách hàng</th>
+            <th>Người xử lý</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Paid)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Customer.CustomerID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.UserID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.OrderID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrderID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.OrderID">Delete</a>
-            </td>
-        </tr>
-}
+        @{
+            int index = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.OrderDate.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (item.Paid)
+                        {
+                            <span class="badge badge-success">Đã thanh toán</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning">Chưa thanh toán</span>
+                        }
+                    </td>
+                    <td>@item.Customer?.FullName</td>
+                    <td>@item.User?.UserName</td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.OrderID" class="btn btn-sm btn-warning">Sửa</a>
+                        <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-sm btn-info">Chi tiết</a>
+                        <a asp-action="Delete" asp-route-id="@item.OrderID" class="btn btn-sm btn-danger">Xoá</a>
+                    </td>
+                </tr>
+                index++;
+            }
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#ordersTable").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                "language": {
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ đơn hàng",
+                    "infoEmpty": "Không có đơn hàng",
+                    "zeroRecords": "Không tìm thấy kết quả"
+                }
+            }).buttons().container().appendTo('#ordersTable_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+}
