@@ -49,25 +49,54 @@ namespace LaptopStore.Controllers
             return View(orderDetail);
         }
         // Lấy tên các loại sản phẩm từ enum ProductType
-        private IEnumerable<SelectListItem> GetProductTypeSelectList()
+        [HttpGet]
+        public IActionResult GetProductsByType(string type)
         {
-            return Enum.GetValues(typeof(ProductType))
-                .Cast<ProductType>()
-                .Select(e => new SelectListItem
-                {
-                    Value = e.ToString(),
-                    Text = e.GetType()
-                            .GetMember(e.ToString())
-                            .First()
-                            .GetCustomAttribute<DisplayAttribute>()?
-                            .GetName() ?? e.ToString()
-                });
+            if (!Enum.TryParse(type, out ProductType productType))
+                return BadRequest("Loại sản phẩm không hợp lệ");
+
+            List<SelectListItem> products = productType switch
+            {
+                ProductType.Laptop => _context.Laptops
+                    .Where(l => !l.IsSold)
+                    .Select(l => new SelectListItem { Value = l.LaptopID.ToString(), Text = l.Brand + " " + l.Model })
+                    .ToList(),
+
+                ProductType.RAM => _context.RAMs
+                    .Select(r => new SelectListItem { Value = r.RAMID.ToString(), Text = $"{r.Capacity}GB {r.Type} {r.Speed}MHz" })
+                    .ToList(),
+
+                ProductType.LaptopCharger => _context.LaptopChargers
+                    .Select(c => new SelectListItem { Value = c.ChargerID.ToString(), Text = $"{c.Wattage}W - {c.Connector}" })
+                    .ToList(),
+
+                ProductType.LaptopScreen => _context.LaptopScreens
+                    .Select(s => new SelectListItem { Value = s.ScreenID.ToString(), Text = $"{s.Resolution} - {s.ScreenType}" })
+                    .ToList(),
+
+                ProductType.LaptopBattery => _context.LaptopBatteries
+                    .Select(b => new SelectListItem { Value = b.BatteryID.ToString(), Text = $"{b.LaptopModel} - {b.Capacity}" })
+                    .ToList(),
+
+                ProductType.StorageDevice => _context.StorageDevices
+                    .Select(sd => new SelectListItem { Value = sd.StorageID.ToString(), Text = $"{sd.Type} {sd.Capacity}" })
+                    .ToList(),
+
+                ProductType.Service => _context.Services
+                    .Select(sv => new SelectListItem { Value = sv.ServiceID.ToString(), Text = sv.ServiceName })
+                    .ToList(),
+
+                _ => new List<SelectListItem>()
+            };
+
+            return Json(products);
         }
+
         // GET: OrderDetails/Create
         public IActionResult Create()
         {
-            ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID");
-            ViewData["ProductType"] = GetProductTypeSelectList();
+            ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
+            ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View();
         }
 
@@ -83,8 +112,10 @@ namespace LaptopStore.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
             
-            ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
-            ViewData["ProductType"] = GetProductTypeSelectList();
+            //ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
+            //ViewData["ProductType"] = GetProductsByType();
+            ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
+            ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View(orderDetail);
         }
 
@@ -101,8 +132,11 @@ namespace LaptopStore.Controllers
             {
                 return NotFound();
             }
-            ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
-            ViewData["ProductType"] = GetProductTypeSelectList();
+            //ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
+            //ViewData["ProductType"] = GetProductTypeSelectList();
+
+            ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
+            ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View(orderDetail);
         }
 
@@ -136,9 +170,11 @@ namespace LaptopStore.Controllers
                 }
             }
             return RedirectToAction(nameof(Index));
-            
-            ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
-            ViewData["ProductType"] = GetProductTypeSelectList();
+
+            //ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
+            //ViewData["ProductType"] = GetProductTypeSelectList();
+            ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
+            ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View(orderDetail);
         }
 

@@ -48,7 +48,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("CustomerID");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
 
                     b.HasData(
                         new
@@ -134,7 +134,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("LaptopID");
 
-                    b.ToTable("Laptops");
+                    b.ToTable("Laptops", (string)null);
 
                     b.HasData(
                         new
@@ -209,7 +209,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("BatteryID");
 
-                    b.ToTable("LaptopBatteries");
+                    b.ToTable("LaptopBatteries", (string)null);
 
                     b.HasData(
                         new
@@ -258,7 +258,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("ChargerID");
 
-                    b.ToTable("LaptopChargers");
+                    b.ToTable("LaptopChargers", (string)null);
 
                     b.HasData(
                         new
@@ -311,7 +311,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("ScreenID");
 
-                    b.ToTable("LaptopScreens");
+                    b.ToTable("LaptopScreens", (string)null);
 
                     b.HasData(
                         new
@@ -362,7 +362,7 @@ namespace LaptopStore.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
 
                     b.HasData(
                         new
@@ -414,7 +414,7 @@ namespace LaptopStore.Migrations
 
                     b.HasIndex("OrderID");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
 
                     b.HasData(
                         new
@@ -466,7 +466,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("RAMID");
 
-                    b.ToTable("RAMs");
+                    b.ToTable("RAMs", (string)null);
 
                     b.HasData(
                         new
@@ -510,7 +510,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("ServiceID");
 
-                    b.ToTable("Services");
+                    b.ToTable("Services", (string)null);
 
                     b.HasData(
                         new
@@ -561,7 +561,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("StorageID");
 
-                    b.ToTable("StorageDevices");
+                    b.ToTable("StorageDevices", (string)null);
 
                     b.HasData(
                         new
@@ -603,7 +603,7 @@ namespace LaptopStore.Migrations
 
                     b.HasKey("UserID");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new

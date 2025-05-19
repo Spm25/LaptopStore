@@ -1,65 +1,72 @@
 ﻿@model IEnumerable<LaptopStore.Models.OrderDetail>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách chi tiết đơn hàng";
 }
 
-<h1>Index</h1>
+<h1>Danh sách chi tiết đơn hàng</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Tạo chi tiết đơn hàng mới</a>
 </p>
-<table class="table">
+
+<table id="orderDetailsTable" class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UnitPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WarrantyPeriod)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Order)
-            </th>
-            <th></th>
+            <th>#</th>
+            <th>Loại sản phẩm</th>
+            <th>ID sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Bảo hành (tháng)</th>
+            <th>Đơn hàng #</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WarrantyPeriod)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Order.OrderID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.OrderDetailID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrderDetailID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.OrderDetailID">Delete</a>
-            </td>
-        </tr>
-}
+        @{
+            int index = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.ProductType</td>
+                    <td>@item.ProductID</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice.ToString("N0") đ</td>
+                    <td>@item.WarrantyPeriod</td>
+                    <td>@item.Order?.OrderID</td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.OrderDetailID" class="btn btn-sm btn-warning">Sửa</a>
+                        <a asp-action="Details" asp-route-id="@item.OrderDetailID" class="btn btn-sm btn-info">Chi tiết</a>
+                        <a asp-action="Delete" asp-route-id="@item.OrderDetailID" class="btn btn-sm btn-danger">Xoá</a>
+                    </td>
+                </tr>
+                index++;
+            }
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#orderDetailsTable").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                "language": {
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ chi tiết đơn hàng",
+                    "infoEmpty": "Không có chi tiết đơn hàng",
+                    "zeroRecords": "Không tìm thấy kết quả"
+                }
+            }).buttons().container().appendTo('#orderDetailsTable_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+}

@@ -42,6 +42,11 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(od => od.OrderID);
 
         // Seed Users
+        //modelBuilder.Entity<User>().HasData(
+        //    new User { UserID = 1, UserName = "admin", Password = "123456", Role = UserRole.Admin, FullName = "Quản lý" },
+        //    new User { UserID = 2, UserName = "staff", Password = "123456", Role = UserRole.Staff, FullName = "Nhân viên Mạnh" }
+        //);
+
         modelBuilder.Entity<User>().HasData(
             new User { UserID = 1, UserName = "admin", Password = "123456", Role = UserRole.Admin },
             new User { UserID = 2, UserName = "staff", Password = "123456", Role = UserRole.Staff }

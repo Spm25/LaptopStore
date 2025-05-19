@@ -49,11 +49,33 @@ namespace LaptopStore.Controllers
         }
 
         // GET: Orders/Create
+        //public IActionResult Create()
+        //{
+        //    ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID");
+        //    ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID");
+        //    return View();
+        //}
         public IActionResult Create()
         {
-            ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID");
-            ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID");
-            return View();
+            ViewData["CustomerID"] = _context.Customers
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CustomerID.ToString(),
+                    Text = $"{c.FullName} - {c.Phone}"
+                }).ToList();
+
+            var username = User.Identity?.Name;
+            var user = _context.Users.FirstOrDefault(u => u.UserName == username);
+
+            var order = new Order();
+            if (user != null)
+            {
+                order.UserID = user.UserID;
+                ViewData["UserID"] = user.UserID;
+                ViewData["UserFullName"] = user.UserName;
+            }
+
+            return View(order);
         }
 
         // POST: Orders/Create

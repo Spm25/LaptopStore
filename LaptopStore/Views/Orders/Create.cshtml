@@ -1,46 +1,77 @@
 ﻿@model LaptopStore.Models.Order
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Tạo đơn hàng";
+
+    if (Model.OrderDate == DateTime.MinValue)
+    {
+        Model.OrderDate = DateTime.Now;
+    }
+
+    string formattedOrderDate = Model.OrderDate.ToString("yyyy-MM-ddTHH:mm:ss");
 }
 
-<h1>Create</h1>
-
-<h4>Order</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Paid" /> @Html.DisplayNameFor(model => model.Paid)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerID" class="control-label"></label>
-                <select asp-for="CustomerID" class ="form-control" asp-items="ViewBag.CustomerID"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserID" class="control-label"></label>
-                <select asp-for="UserID" class ="form-control" asp-items="ViewBag.UserID"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Thông tin đơn hàng</h3>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <form asp-action="Create">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="OrderDate">Ngày đặt hàng</label>
+                    <input asp-for="OrderDate" class="form-control"
+                           value="@formattedOrderDate" type="datetime-local" />
+                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6 mt-2">
+                    <label>Trạng thái thanh toán</label><br />
+                    <div class="form-group clearfix mt-1">
+                        <div class="icheck-success d-inline mr-3">
+                            <input type="radio" id="radioPaidTrue" name="Paid" value="true" @(Model.Paid ? "checked" : "") />
+                            <label for="radioPaidTrue">Đã thanh toán</label>
+                        </div>
+                        <div class="icheck-danger d-inline">
+                            <input type="radio" id="radioPaidFalse" name="Paid" value="false" @(!Model.Paid ? "checked" : "") />
+                            <label for="radioPaidFalse">Chưa thanh toán</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Paid" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="CustomerID">Khách hàng</label>
+                    <select asp-for="CustomerID" class="form-control select2-tag" asp-items="ViewBag.CustomerID"></select>
+                    <span asp-validation-for="CustomerID" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Người tạo</label>
+                    <input class="form-control" value="@ViewData["UserFullName"]" disabled />
+                    <input type="hidden" asp-for="UserID" value="@ViewData["UserID"]" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-right">
+            <input type="submit" value="Tạo đơn hàng" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(function () {
+            $('.select2-tag').select2({
+                placeholder: "Chọn hoặc nhập tên khách hàng",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
 }
