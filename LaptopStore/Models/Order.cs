@@ -9,6 +9,7 @@ namespace LaptopStore.Models
         public int OrderID { get; set; }
         public DateTime OrderDate { get; set; }
         public bool Paid { get; set; }
+        public float TotalPrice { get; set; } = 0;
 
         [ForeignKey("Customer")]
         public int CustomerID { get; set; }

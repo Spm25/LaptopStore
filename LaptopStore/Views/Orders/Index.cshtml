@@ -6,9 +6,24 @@
 
 <h1>Danh sách đơn hàng</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Tạo đơn hàng mới</a>
-</p>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <a asp-action="Create" class="btn btn-primary">Tạo đơn hàng mới</a>
+    </div>
+    <div class="col-md-6 text-right">
+        <div class="form-inline justify-content-end">
+            <label for="priceFilter" class="mr-2">Lọc theo giá:</label>
+            <select id="priceFilter" class="form-control form-control-sm">
+                <option value="">Tất cả</option>
+                <option value="low">Dưới 5 triệu</option>
+                <option value="high">Trên 5 triệu</option>
+                <option value="5-10">5 - 10 triệu</option>
+                <option value="10-20">10 - 20 triệu</option>
+                <option value="20+">Trên 20 triệu</option>
+            </select>
+        </div>
+    </div>
+</div>
 
 <table id="ordersTable" class="table table-bordered table-striped">
     <thead>
@@ -16,6 +31,7 @@
             <th>#</th>
             <th>Ngày đặt</th>
             <th>Đã thanh toán</th>
+            <th>Tổng tiền</th>
             <th>Khách hàng</th>
             <th>Người xử lý</th>
             <th>Thao tác</th>
@@ -39,6 +55,9 @@
                             <span class="badge badge-warning">Chưa thanh toán</span>
                         }
                     </td>
+                    <td class="text-right">
+                        @item.TotalPrice.ToString("N0") đ
+                    </td>
                     <td>@item.Customer?.FullName</td>
                     <td>@item.User?.UserName</td>
                     <td class="text-center">
@@ -56,7 +75,7 @@
 @section Scripts {
     <script>
         $(function () {
-            $("#ordersTable").DataTable({
+            var table = $("#ordersTable").DataTable({
                 "responsive": true,
                 "lengthChange": false,
                 "autoWidth": false,
@@ -70,8 +89,49 @@
                     "info": "Hiển thị _START_ đến _END_ của _TOTAL_ đơn hàng",
                     "infoEmpty": "Không có đơn hàng",
                     "zeroRecords": "Không tìm thấy kết quả"
-                }
+                },
+                "columnDefs": [
+                    { "type": "num", "targets": 0 },
+                    { "type": "date", "targets": 1 },
+                    {
+                        "type": "num-fmt",
+                        "targets": 3,
+                        "render": function(data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                return data.replace(/[^\d]/g, '');
+                            }
+                            return data;
+                        }
+                    }
+                ],
+                "order": [[1, "desc"]]
             }).buttons().container().appendTo('#ordersTable_wrapper .col-md-6:eq(0)');
+
+            // Xử lý lọc theo giá
+            $('#priceFilter').on('change', function() {
+                var value = $(this).val();
+                table.column(3).search('').draw(); // Reset tìm kiếm trước
+
+                switch(value) {
+                    case 'low':
+                        table.column(3).search('<5000000', true, false).draw();
+                        break;
+                    case 'high':
+                        table.column(3).search('>=5000000', true, false).draw();
+                        break;
+                    case '5-10':
+                        table.column(3).search('>=5000000<10000000', true, false).draw();
+                        break;
+                    case '10-20':
+                        table.column(3).search('>=10000000<20000000', true, false).draw();
+                        break;
+                    case '20+':
+                        table.column(3).search('>=20000000', true, false).draw();
+                        break;
+                    default:
+                        table.column(3).search('').draw();
+                }
+            });
         });
     </script>
 }

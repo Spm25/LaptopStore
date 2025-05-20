@@ -55,42 +55,70 @@ namespace LaptopStore.Controllers
             if (!Enum.TryParse(type, out ProductType productType))
                 return BadRequest("Loại sản phẩm không hợp lệ");
 
-            List<SelectListItem> products = productType switch
+            var products = productType switch
             {
                 ProductType.Laptop => _context.Laptops
                     .Where(l => !l.IsSold)
-                    .Select(l => new SelectListItem { Value = l.LaptopID.ToString(), Text = l.Brand + " " + l.Model })
-                    .ToList(),
+                    .Select(l => new {
+                        Value = l.LaptopID.ToString(),
+                        Text = $"{l.Brand} {l.Model} (CPU: {l.CPU}, RAM: {l.RAM})",
+                        Quantity = 1 // Mỗi laptop là 1 sản phẩm duy nhất
+                    }),
 
                 ProductType.RAM => _context.RAMs
-                    .Select(r => new SelectListItem { Value = r.RAMID.ToString(), Text = $"{r.Capacity}GB {r.Type} {r.Speed}MHz" })
-                    .ToList(),
+                    .Where(r => r.Quantity > 0)
+                    .Select(r => new {
+                        Value = r.RAMID.ToString(),
+                        Text = $"{r.Capacity}GB {r.Type} (Còn: {r.Quantity})",
+                        Quantity = r.Quantity
+                    }),
 
                 ProductType.LaptopCharger => _context.LaptopChargers
-                    .Select(c => new SelectListItem { Value = c.ChargerID.ToString(), Text = $"{c.Wattage}W - {c.Connector}" })
-                    .ToList(),
+                    .Where(c => c.Quantity > 0)
+                    .Select(c => new {
+                        Value = c.ChargerID.ToString(),
+                        Text = $"{c.Wattage}W {c.Connector} (Còn: {c.Quantity})",
+                        Quantity = c.Quantity
+                    }),
 
                 ProductType.LaptopScreen => _context.LaptopScreens
-                    .Select(s => new SelectListItem { Value = s.ScreenID.ToString(), Text = $"{s.Resolution} - {s.ScreenType}" })
-                    .ToList(),
+                    .Where(s => s.Quantity > 0)
+                    .Select(s => new {
+                        Value = s.ScreenID.ToString(),
+                        Text = $"{s.Resolution} {s.ScreenType} (Còn: {s.Quantity})",
+                        Quantity = s.Quantity
+                    }),
 
                 ProductType.LaptopBattery => _context.LaptopBatteries
-                    .Select(b => new SelectListItem { Value = b.BatteryID.ToString(), Text = $"{b.LaptopModel} - {b.Capacity}" })
-                    .ToList(),
+                    .Where(b => b.Quantity > 0)
+                    .Select(b => new {
+                        Value = b.BatteryID.ToString(),
+                        Text = $"{b.LaptopModel} {b.Capacity} (Còn: {b.Quantity})",
+                        Quantity = b.Quantity
+                    }),
 
                 ProductType.StorageDevice => _context.StorageDevices
-                    .Select(sd => new SelectListItem { Value = sd.StorageID.ToString(), Text = $"{sd.Type} {sd.Capacity}" })
-                    .ToList(),
+                    .Where(s => s.Quantity > 0)
+                    .Select(s => new {
+                        Value = s.StorageID.ToString(),
+                        Text = $"{s.Type} {s.Capacity} (Còn: {s.Quantity})",
+                        Quantity = s.Quantity
+                    }),
 
                 ProductType.Service => _context.Services
-                    .Select(sv => new SelectListItem { Value = sv.ServiceID.ToString(), Text = sv.ServiceName })
-                    .ToList(),
+                    .Select(s => new {
+                        Value = s.ServiceID.ToString(),
+                        Text = s.ServiceName,
+                        Quantity = 100 // Dịch vụ không giới hạn số lượng
+                    }),
 
-                _ => new List<SelectListItem>()
+                _ => Enumerable.Empty<object>()
             };
 
-            return Json(products);
+            return Json(products.ToList());
         }
+
+
 
         // GET: OrderDetails/Create
         public IActionResult Create()
@@ -108,15 +136,123 @@ namespace LaptopStore.Controllers
         public async Task<IActionResult> Create([Bind("OrderDetailID,ProductID,ProductType,Quantity,UnitPrice,WarrantyPeriod,OrderID")] OrderDetail orderDetail)
         {
             
-            _context.Add(orderDetail);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        // 1. Thêm OrderDetail mới
+                        _context.Add(orderDetail);
+                        await _context.SaveChangesAsync();
+
+                        // 2. Cập nhật số lượng sản phẩm
+                        await UpdateProductQuantity(orderDetail.ProductType, orderDetail.ProductID, orderDetail.Quantity);
+
+                        // 3. Cập nhật tổng tiền đơn hàng
+                        await UpdateOrderTotalPrice(orderDetail.OrderID);
+
+                        await transaction.CommitAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        ModelState.AddModelError("", "Có lỗi xảy ra khi tạo chi tiết đơn hàng: " + ex.Message);
+                    }
+                }
             
-            //ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
-            //ViewData["ProductType"] = GetProductsByType();
+
             ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View(orderDetail);
+        }
+
+        private async Task UpdateProductQuantity(ProductType productType, int productId, int quantity, bool isReturn = false)
+        {
+            switch (productType)
+            {
+                case ProductType.Laptop:
+                    var laptop = await _context.Laptops.FindAsync(productId);
+                    if (laptop != null)
+                    {
+                        laptop.IsSold = !isReturn; // true khi trừ, false khi hoàn trả
+                        _context.Update(laptop);
+                    }
+                    break;
+
+                case ProductType.RAM:
+                    var ram = await _context.RAMs.FindAsync(productId);
+                    if (ram != null)
+                    {
+                        ram.Quantity += isReturn ? quantity : -quantity;
+                        _context.Update(ram);
+                    }
+                    break;
+
+                case ProductType.LaptopCharger:
+                    var charger = await _context.LaptopChargers.FindAsync(productId);
+                    if (charger != null)
+                    {
+                        charger.Quantity += isReturn ? quantity : -quantity;
+                        _context.Update(charger);
+                    }
+                    break;
+
+                case ProductType.LaptopScreen:
+                    var screen = await _context.LaptopScreens.FindAsync(productId);
+                    if (screen != null)
+                    {
+                        screen.Quantity += isReturn ? quantity : -quantity;
+                        _context.Update(screen);
+                    }
+                    break;
+
+                case ProductType.LaptopBattery:
+                    var battery = await _context.LaptopBatteries.FindAsync(productId);
+                    if (battery != null)
+                    {
+                        battery.Quantity += isReturn ? quantity : -quantity;
+                        _context.Update(battery);
+                    }
+                    break;
+
+                case ProductType.StorageDevice:
+                    var storage = await _context.StorageDevices.FindAsync(productId);
+                    if (storage != null)
+                    {
+                        storage.Quantity += isReturn ? quantity : -quantity;
+                        _context.Update(storage);
+                    }
+                    break;
+
+                case ProductType.Service:
+                    // Dịch vụ không cần cập nhật số lượng
+                    break;
+
+                default:
+                    throw new ArgumentException("Loại sản phẩm không hợp lệ");
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task UpdateOrderTotalPrice(int orderId)
+        {
+            // Lấy tất cả OrderDetail thuộc về Order này
+            var orderDetails = await _context.OrderDetails
+                .Where(od => od.OrderID == orderId)
+                .ToListAsync();
+
+            // Tính tổng giá trị đơn hàng
+            float totalPrice = orderDetails.Sum(od => od.Quantity * od.UnitPrice);
+
+            // Cập nhật vào Order
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order != null)
+            {
+                order.TotalPrice = totalPrice;
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+            }
         }
 
         // GET: OrderDetails/Edit/5
@@ -152,27 +288,40 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
-            
-            try
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                _context.Update(orderDetail);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderDetailExists(orderDetail.OrderDetailID))
+                try
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
+                    // Lấy thông tin OrderDetail cũ
+                    var oldOrderDetail = await _context.OrderDetails.AsNoTracking()
+                        .FirstOrDefaultAsync(od => od.OrderDetailID == id);
 
-            //ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
-            //ViewData["ProductType"] = GetProductTypeSelectList();
+                    if (oldOrderDetail != null)
+                    {
+                        // Hoàn trả số lượng sản phẩm cũ (isReturn = true)
+                        await UpdateProductQuantity(oldOrderDetail.ProductType, oldOrderDetail.ProductID, oldOrderDetail.Quantity, true);
+                    }
+
+                    // Cập nhật OrderDetail mới
+                    _context.Update(orderDetail);
+                    await _context.SaveChangesAsync();
+
+                    // Trừ số lượng sản phẩm mới (isReturn = false)
+                    await UpdateProductQuantity(orderDetail.ProductType, orderDetail.ProductID, orderDetail.Quantity, false);
+
+                    // Cập nhật tổng tiền đơn hàng
+                    await UpdateOrderTotalPrice(orderDetail.OrderID);
+
+                    await transaction.CommitAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Có lỗi xảy ra khi cập nhật: " + ex.Message);
+                }
+            }
+
             ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View(orderDetail);
@@ -202,14 +351,107 @@ namespace LaptopStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            if (orderDetail != null)
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                _context.OrderDetails.Remove(orderDetail);
+                try
+                {
+                    var orderDetail = await _context.OrderDetails.FindAsync(id);
+                    if (orderDetail == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Hoàn trả số lượng sản phẩm (isReturn = true)
+                    await UpdateProductQuantity(orderDetail.ProductType, orderDetail.ProductID, orderDetail.Quantity, true);
+
+                    // Xóa OrderDetail
+                    _context.OrderDetails.Remove(orderDetail);
+                    await _context.SaveChangesAsync();
+
+                    // Cập nhật tổng tiền đơn hàng
+                    await UpdateOrderTotalPrice(orderDetail.OrderID);
+
+                    await transaction.CommitAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Có lỗi xảy ra khi xóa: " + ex.Message);
+                    return View("Delete", await _context.OrderDetails
+                        .Include(o => o.Order)
+                        .FirstOrDefaultAsync(m => m.OrderDetailID == id));
+                }
+            }
+        }
+
+        private async Task ReturnProductQuantity(ProductType productType, int productId, int quantity)
+        {
+            switch (productType)
+            {
+                case ProductType.Laptop:
+                    var laptop = await _context.Laptops.FindAsync(productId);
+                    if (laptop != null)
+                    {
+                        laptop.IsSold = false;
+                        _context.Update(laptop);
+                    }
+                    break;
+
+                case ProductType.RAM:
+                    var ram = await _context.RAMs.FindAsync(productId);
+                    if (ram != null)
+                    {
+                        ram.Quantity += quantity;
+                        _context.Update(ram);
+                    }
+                    break;
+
+                case ProductType.LaptopCharger:
+                    var charger = await _context.LaptopChargers.FindAsync(productId);
+                    if (charger != null)
+                    {
+                        charger.Quantity += quantity;
+                        _context.Update(charger);
+                    }
+                    break;
+
+                case ProductType.LaptopScreen:
+                    var screen = await _context.LaptopScreens.FindAsync(productId);
+                    if (screen != null)
+                    {
+                        screen.Quantity += quantity;
+                        _context.Update(screen);
+                    }
+                    break;
+
+                case ProductType.LaptopBattery:
+                    var battery = await _context.LaptopBatteries.FindAsync(productId);
+                    if (battery != null)
+                    {
+                        battery.Quantity += quantity;
+                        _context.Update(battery);
+                    }
+                    break;
+
+                case ProductType.StorageDevice:
+                    var storage = await _context.StorageDevices.FindAsync(productId);
+                    if (storage != null)
+                    {
+                        storage.Quantity += quantity;
+                        _context.Update(storage);
+                    }
+                    break;
+
+                case ProductType.Service:
+                    // Dịch vụ không cần cập nhật số lượng
+                    break;
+
+                default:
+                    throw new ArgumentException("Loại sản phẩm không hợp lệ");
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool OrderDetailExists(int id)
