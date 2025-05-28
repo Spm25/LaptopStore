@@ -121,9 +121,23 @@ namespace LaptopStore.Controllers
 
 
         // GET: OrderDetails/Create
+        // GET: OrderDetails/Create
         public IActionResult Create()
         {
-            ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
+            // Tạo SelectList từ enum với Display Name
+            var productTypes = Enum.GetValues(typeof(ProductType))
+                .Cast<ProductType>()
+                .Select(pt => new SelectListItem
+                {
+                    Value = pt.ToString(),
+                    Text = pt.GetType()
+                           .GetMember(pt.ToString())
+                           .First()
+                           .GetCustomAttribute<DisplayAttribute>()?
+                           .Name ?? pt.ToString()
+                }).ToList();
+
+            ViewBag.ProductType = new SelectList(productTypes, "Value", "Text");
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View();
         }

@@ -15,13 +15,6 @@
             <div class="form-group">
                 <label asp-for="ProductType">Loại sản phẩm</label>
                 <select asp-for="ProductType" class="form-control" asp-items="ViewBag.ProductType" id="ProductType"><option value="">-- Chọn loại sản phẩm --</option></select>
-                @* <select asp-for="ProductType" class="form-control" id="ProductType">
-                    <option value="">-- Chọn loại sản phẩm --</option>
-                    @foreach (var item in (SelectList)ViewBag.ProductType)
-                    {
-                        <option value="@item.Value">@item.Value</option>
-                    }
-                </select> *@
                 <span asp-validation-for="ProductType" class="text-danger"></span>
             </div>
 

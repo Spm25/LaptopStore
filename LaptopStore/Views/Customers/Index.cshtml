@@ -1,53 +1,68 @@
 ﻿@model IEnumerable<LaptopStore.Models.Customer>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách khách hàng";
 }
 
-<h1>Index</h1>
+<h1>Danh sách khách hàng</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Tạo khách hàng mới</a>
 </p>
-<table class="table">
+
+<table id="customersTable" class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Phone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th></th>
+            <th>#</th>
+            <th>Họ tên</th>
+            <th>Số điện thoại</th>
+            <th>Email</th>
+            <th>Địa chỉ</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CustomerID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CustomerID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CustomerID">Delete</a>
-            </td>
-        </tr>
-}
+        @{
+            int index = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.FullName</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Email</td>
+                    <td>@item.Address</td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.CustomerID" class="btn btn-sm btn-warning">Sửa</a>
+                        <a asp-action="Details" asp-route-id="@item.CustomerID" class="btn btn-sm btn-info">Chi tiết</a>
+                        <a asp-action="Delete" asp-route-id="@item.CustomerID" class="btn btn-sm btn-danger">Xoá</a>
+                    </td>
+                </tr>
+                index++;
+            }
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#customersTable").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                "language": {
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Sau"
+                    },
+                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ khách hàng",
+                    "infoEmpty": "Không có khách hàng nào",
+                    "zeroRecords": "Không tìm thấy kết quả"
+                }
+            }).buttons().container().appendTo('#customersTable_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+}

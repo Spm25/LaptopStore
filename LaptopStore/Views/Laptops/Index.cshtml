@@ -8,9 +8,13 @@
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Thêm mới</a>
+    <div class="form-check form-switch d-inline-block ms-3">
+        <input class="form-check-input" type="checkbox" id="showSoldToggle" onchange="toggleSoldLaptops()" checked>
+        <label class="form-check-label" for="showSoldToggle">Hiển thị laptop đã bán</label>
+    </div>
 </p>
 
-<table id="example1" class="table table-bordered table-striped">
+<table id="laptopsTable" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>#</th>
@@ -20,6 +24,7 @@
             <th>Giá bán</th>
             <th>Mô tả</th>
             <th>Ảnh</th>
+            <th>Trạng thái</th>
             <th>Thao tác</th>
         </tr>
     </thead>
@@ -28,7 +33,7 @@
             int index = 1;
             foreach (var item in Model)
             {
-                <tr>
+                <tr class="@(item.IsSold ? "table-danger" : "")" data-sold="@item.IsSold.ToString().ToLower()">
                     <td>@index</td>
                     <td>
                         <strong>Hãng:</strong> @item.Brand <br />
@@ -45,12 +50,30 @@
                     <td>@item.ImportPrice.ToString("N0")</td>
                     <td>@item.SellingPrice.ToString("N0")</td>
                     <td>@item.Description</td>
-                    <td>@item.ImageURL</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImageURL))
+                        {
+                            <img src="@item.ImageURL" style="max-width: 100px; max-height: 100px;" />
+                        }
+                    </td>
+                    <td>
+                        @if (item.IsSold)
+                        {
+                            <span class="badge bg-danger">Đã bán</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Còn hàng</span>
+                        }
+                    </td>
                     <td class="text-center">
                         <div class="d-grid gap-2">
                             <a asp-action="Edit" asp-route-id="@item.LaptopID" class="btn btn-sm btn-warning btn-block w-100">Sửa</a>
                             <a asp-action="Details" asp-route-id="@item.LaptopID" class="btn btn-sm btn-info btn-block w-100 mt-1">Chi tiết</a>
-                            <a asp-action="Delete" asp-route-id="@item.LaptopID" class="btn btn-sm btn-danger btn-block w-100 mt-1">Xoá</a>
+                            @if (!item.IsSold)
+                            {
+                                <a asp-action="Delete" asp-route-id="@item.LaptopID" class="btn btn-sm btn-danger btn-block w-100 mt-1">Xoá</a>
+                            }
                         </div>
                     </td>
                 </tr>
@@ -63,7 +86,8 @@
 @section Scripts {
     <script>
         $(function () {
-            $("#example1").DataTable({
+            // Initialize DataTable
+            var table = $("#laptopsTable").DataTable({
                 "responsive": true,
                 "lengthChange": false,
                 "autoWidth": false,
@@ -78,7 +102,22 @@
                     "infoEmpty": "Không có dữ liệu",
                     "zeroRecords": "Không tìm thấy kết quả"
                 }
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            }).buttons().container().appendTo('#laptopsTable_wrapper .col-md-6:eq(0)');
+
+            // Initially hide sold laptops
+            table.rows('[data-sold="true"]').nodes().to$().hide();
         });
+
+        function toggleSoldLaptops() {
+            var showSold = $('#showSoldToggle').is(':checked');
+            var table = $('#laptopsTable').DataTable();
+
+            if (showSold) {
+                table.rows().nodes().to$().show();
+            } else {
+                table.rows('[data-sold="true"]').nodes().to$().hide();
+                table.rows('[data-sold="false"]').nodes().to$().show();
+            }
+        }
     </script>
 }
