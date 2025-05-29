@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Nhập Laptop từ Excel";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<hr />
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="ProcessExcelForConfirmation" method="post" enctype="multipart/form-data">
+            @* THAY ĐỔI ACTION Ở ĐÂY *@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label for="file" class="control-label">Chọn file Excel (.xlsx)</label>
+                <input type="file" name="file" id="file" class="form-control" accept=".xlsx" required />
+            </div>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-file-import"></i> Xử lý File
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h4>Hướng dẫn:</h4>
+        <p>
+            Sử dụng file Excel theo mẫu để nhập dữ liệu laptop hàng loạt.
+            Các cột cần có trong file Excel (theo đúng thứ tự):
+            <code>Brand, Model, SerialNumber, CPU, RAM, Storage, GPU, ImportPrice, SellingPrice, Description, ImageURL, ScreenSize, OperatingSystem, BatteryHealth, IsSold</code>.
+        </p>
+        <p>
+            <strong>Lưu ý:</strong>
+            <ul>
+                <li>Dòng đầu tiên của file Excel là dòng tiêu đề và sẽ được bỏ qua.</li>
+                <li>Cột <strong>Brand</strong> và <strong>Model</strong> là bắt buộc.</li>
+                <li>Cột <strong>SerialNumber</strong> nếu có sẽ được dùng để kiểm tra trùng lặp. Nếu laptop với SerialNumber đã tồn tại thì sẽ được bỏ qua.</li>
+                <li>Các cột <strong>ImportPrice</strong>, <strong>SellingPrice</strong>, <strong>ScreenSize</strong> phải là dạng số (ví dụ: 15000000, 15.6).</li>
+                <li>Cột <strong>BatteryHealth</strong> phải là số nguyên (ví dụ: 95).</li>
+                <li>Cột <strong>IsSold</strong> phải là TRUE hoặc FALSE.</li>
+                <li><strong>ImageURL</strong> là đường dẫn tương đối, ví dụ: /images/laptops/ten_file_anh.jpg</li>
+            </ul>
+        </p>
+        <a asp-action="DownloadSampleExcel" class="btn btn-info">
+            <i class="fas fa-file-excel"></i> Tải file Excel mẫu
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

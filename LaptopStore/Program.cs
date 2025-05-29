@@ -3,6 +3,9 @@ using AspNetCoreHero.ToastNotification.Extensions;
 using LaptopStore.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+
+ExcelPackage.License.SetNonCommercialPersonal("Manh");
 
 var builder = WebApplication.CreateBuilder(args);
 

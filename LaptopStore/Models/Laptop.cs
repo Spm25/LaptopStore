@@ -20,11 +20,11 @@ namespace LaptopStore.Models
         public string Storage { get; set; }
         public string GPU { get; set; }
 
-        public float ImportPrice { get; set; }
-        public float SellingPrice { get; set; }
+        public float ImportPrice { get; set; }//giá nhập
+        public float SellingPrice { get; set; }//giá bán
 
-        public string Description { get; set; } // Không required
-        public string ImageURL { get; set; }    // Không required
+        public string Description { get; set; } 
+        public string ImageURL { get; set; }    
 
         public float ScreenSize { get; set; }          // inch
         public string OperatingSystem { get; set; }    // Hệ điều hành

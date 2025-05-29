@@ -1,0 +1,156 @@
+﻿@model LaptopStore.ViewModels.ImportConfirmationViewModel
+@{
+    ViewData["Title"] = "Xác nhận Import Laptop";
+    var laptopsOK = Model.EntriesToReview.Where(e => e.IsValidForImport && !e.HasWarnings).ToList();
+    var laptopsWithWarnings = Model.EntriesToReview.Where(e => e.IsValidForImport && e.HasWarnings).ToList();
+    var laptopsWithErrors = Model.EntriesToReview.Where(e => !e.IsValidForImport).ToList();
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<p>Vui lòng xem lại dữ liệu từ file Excel. Chỉ những mục không có lỗi mới được xem xét để import.</p>
+
+@if (laptopsOK.Any())
+{
+    <div class="card card-success mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Sẵn sàng để Import (@laptopsOK.Count mục)</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Dòng Excel</th>
+                        <th>Thông tin Laptop</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in laptopsOK)
+                    {
+                        <tr>
+                            <td>@entry.OriginalRowNumber</td>
+                            <td>
+                                @entry.LaptopData.Brand @entry.LaptopData.Model,
+                                S/N: @(entry.LaptopData.SerialNumber ?? "N/A"),
+                                Giá nhập: @entry.LaptopData.ImportPrice.ToString("N0"),
+                                Giá bán: @entry.LaptopData.SellingPrice.ToString("N0")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (laptopsWithWarnings.Any())
+{
+    <div class="card card-warning mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Có cảnh báo - Vẫn có thể Import (@laptopsWithWarnings.Count mục)</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Dòng Excel</th>
+                        <th>Thông tin Laptop</th>
+                        <th>Cảnh báo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in laptopsWithWarnings)
+                    {
+                        <tr>
+                            <td>@entry.OriginalRowNumber</td>
+                            <td>
+                                @entry.LaptopData.Brand @entry.LaptopData.Model,
+                                S/N: @(entry.LaptopData.SerialNumber ?? "N/A")
+                            </td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var warning in entry.Warnings)
+                                    {
+                                        <li><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> @warning</small></li>
+                                    }
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (laptopsWithErrors.Any())
+{
+    <div class="card card-danger mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Lỗi - Sẽ được bỏ qua (@laptopsWithErrors.Count mục)</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Dòng Excel</th>
+                        <th>Vấn đề</th>
+                        <th>Dữ liệu (tóm tắt)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in laptopsWithErrors)
+                    {
+                        <tr>
+                            <td>@entry.OriginalRowNumber</td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var error in entry.Errors)
+                                    {
+                                        <li><small class="text-danger"><i class="fas fa-times-circle"></i> @error</small></li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>
+                                <small>
+                                    @(entry.LaptopData?.Brand) @(entry.LaptopData?.Model)
+                                </small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+@if (laptopsOK.Any() || laptopsWithWarnings.Any())
+{
+    <form asp-action="ExecuteImportConfirmed" method="post" class="mt-4">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check-circle"></i> Xác nhận Import (@(laptopsOK.Count + laptopsWithWarnings.Count) mục)
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-times-circle"></i> Hủy bỏ
+        </a>
+    </form>
+}
+else if (!laptopsWithErrors.Any()) // Trường hợp file trống hoặc không có dữ liệu nào sau khi lọc dòng trống
+{
+    <div class="alert alert-info mt-3">
+        Không có dữ liệu nào được tìm thấy trong file Excel để import.
+    </div>
+    <a asp-action="Import" class="btn btn-primary mt-2"><i class="fas fa-upload"></i> Thử lại với file khác</a>
+    <a asp-action="Index" class="btn btn-secondary mt-2">Quay lại danh sách</a>
+}
+else // Chỉ có lỗi
+{
+    <div class="alert alert-danger mt-3">
+        Tất cả các dòng dữ liệu trong file đều có lỗi và không thể import. Vui lòng kiểm tra lại file Excel.
+    </div>
+    <a asp-action="Import" class="btn btn-primary mt-2"><i class="fas fa-upload"></i> Thử lại với file khác</a>
+    <a asp-action="Index" class="btn btn-secondary mt-2">Quay lại danh sách</a>
+}
