@@ -20,10 +20,12 @@
             <th>#</th>
             <th>Thông tin máy</th>
             <th>Serial Number</th>
-            <th>Giá nhập</th>
+            @if (User.IsInRole("Admin"))
+            {
+                <th>Giá nhập</th>
+            }
             <th>Giá bán</th>
             <th>Mô tả</th>
-            <th>Ảnh</th>
             <th>Trạng thái</th>
             <th>Thao tác</th>
         </tr>
@@ -47,15 +49,14 @@
                         <strong>Pin:</strong> @item.BatteryHealth
                     </td>
                     <td>@item.SerialNumber</td>
-                    <td>@item.ImportPrice.ToString("N0")</td>
+					@if (User.IsInRole("Admin"))
+					{
+						<td>@item.ImportPrice.ToString("N0")</td>
+					}
+					
                     <td>@item.SellingPrice.ToString("N0")</td>
                     <td>@item.Description</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.ImageURL))
-                        {
-                            <img src="@item.ImageURL" style="max-width: 100px; max-height: 100px;" />
-                        }
-                    </td>
+                    
                     <td>
                         @if (item.IsSold)
                         {

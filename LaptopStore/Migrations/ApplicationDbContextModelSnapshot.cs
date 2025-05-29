@@ -595,6 +595,10 @@ namespace LaptopStore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -614,6 +618,7 @@ namespace LaptopStore.Migrations
                         new
                         {
                             UserID = 1,
+                            FullName = "Quản lý",
                             Password = "123456",
                             Role = 1,
                             UserName = "admin"
@@ -621,6 +626,7 @@ namespace LaptopStore.Migrations
                         new
                         {
                             UserID = 2,
+                            FullName = "Mạnh",
                             Password = "123456",
                             Role = 2,
                             UserName = "staff"
