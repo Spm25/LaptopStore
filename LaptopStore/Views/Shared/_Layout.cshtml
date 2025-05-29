@@ -286,7 +286,8 @@
     <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await Component.InvokeAsync("Notyf")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

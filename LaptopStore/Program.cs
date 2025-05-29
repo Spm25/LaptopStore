@@ -1,3 +1,5 @@
+﻿using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 using LaptopStore.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 5;      // Thời gian hiển thị mặc định (giây)
+    config.IsDismissable = true;       // Cho phép người dùng tự tắt thông báo
+    config.Position = NotyfPosition.TopRight; // Vị trí hiển thị (TopRight, BottomRight, TopLeft, BottomLeft, TopCenter, BottomCenter)
+});
+
 var app = builder.Build();
 
 app.UseAuthentication();
@@ -37,6 +46,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseNotyf(); // Sử dụng Notyf middleware
 
 app.MapControllerRoute(
     name: "default",
