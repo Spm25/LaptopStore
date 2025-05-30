@@ -1,8 +1,124 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Bảng điều khiển</h1>
+            </div>
+        </div>
+    </div>
 </div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>@(((decimal)ViewBag.MonthlyRevenue).ToString("N0"))<sup style="font-size: 20px">₫</sup></h3>
+                        <p>Doanh thu tháng này</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-cash"></i>
+                    </div>
+                    <a asp-controller="Orders" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@ViewBag.MonthlyOrders</h3>
+                        <p>Đơn hàng trong tháng</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-clipboard"></i>
+                    </div>
+                    <a asp-controller="Orders" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <h4>Số lượng tồn kho theo loại sản phẩm:</h4>
+        <br />
+
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>@ViewBag.LaptopsInStock</h3>
+                        <p>Laptop tồn kho</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <a asp-controller="Laptops" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3>@ViewBag.RAMsInStock</h3>
+                        <p>RAM tồn kho</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <a asp-controller="RAMs" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h3>@ViewBag.StorageDevicesInStock</h3>
+                        <p>Ổ cứng tồn kho</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <a asp-controller="StorageDevices" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="small-box bg-purple">
+                    <div class="inner">
+                        <h3>@ViewBag.LaptopScreensInStock</h3>
+                        <p>Màn hình Laptop tồn kho</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <a asp-controller="LaptopScreens" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="small-box bg-teal">
+                    <div class="inner">
+                        <h3>@ViewBag.LaptopBatteriesInStock</h3>
+                        <p>Pin Laptop tồn kho</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-battery-full"></i>
+                    </div>
+                    <a asp-controller="LaptopBatteries" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="small-box bg-orange">
+                    <div class="inner">
+                        <h3>@ViewBag.LaptopChargersInStock</h3>
+                        <p>Sạc Laptop tồn kho</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <a asp-controller="LaptopChargers" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
