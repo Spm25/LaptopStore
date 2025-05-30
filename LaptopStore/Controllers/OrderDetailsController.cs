@@ -59,7 +59,8 @@ namespace LaptopStore.Controllers
             {
                 ProductType.Laptop => _context.Laptops
                     .Where(l => !l.IsSold)
-                    .Select(l => new {
+                    .Select(l => new
+                    {
                         Value = l.LaptopID.ToString(),
                         Text = $"{l.Brand} {l.Model} (CPU: {l.CPU}, RAM: {l.RAM})",
                         Quantity = 1 // Mỗi laptop là 1 sản phẩm duy nhất
@@ -67,7 +68,8 @@ namespace LaptopStore.Controllers
 
                 ProductType.RAM => _context.RAMs
                     .Where(r => r.Quantity > 0)
-                    .Select(r => new {
+                    .Select(r => new
+                    {
                         Value = r.RAMID.ToString(),
                         Text = $"{r.Capacity}GB {r.Type} (Còn: {r.Quantity})",
                         Quantity = r.Quantity
@@ -75,7 +77,8 @@ namespace LaptopStore.Controllers
 
                 ProductType.LaptopCharger => _context.LaptopChargers
                     .Where(c => c.Quantity > 0)
-                    .Select(c => new {
+                    .Select(c => new
+                    {
                         Value = c.ChargerID.ToString(),
                         Text = $"{c.Wattage}W {c.Connector} (Còn: {c.Quantity})",
                         Quantity = c.Quantity
@@ -83,7 +86,8 @@ namespace LaptopStore.Controllers
 
                 ProductType.LaptopScreen => _context.LaptopScreens
                     .Where(s => s.Quantity > 0)
-                    .Select(s => new {
+                    .Select(s => new
+                    {
                         Value = s.ScreenID.ToString(),
                         Text = $"{s.Resolution} {s.ScreenType} (Còn: {s.Quantity})",
                         Quantity = s.Quantity
@@ -91,7 +95,8 @@ namespace LaptopStore.Controllers
 
                 ProductType.LaptopBattery => _context.LaptopBatteries
                     .Where(b => b.Quantity > 0)
-                    .Select(b => new {
+                    .Select(b => new
+                    {
                         Value = b.BatteryID.ToString(),
                         Text = $"{b.LaptopModel} {b.Capacity} (Còn: {b.Quantity})",
                         Quantity = b.Quantity
@@ -99,14 +104,16 @@ namespace LaptopStore.Controllers
 
                 ProductType.StorageDevice => _context.StorageDevices
                     .Where(s => s.Quantity > 0)
-                    .Select(s => new {
+                    .Select(s => new
+                    {
                         Value = s.StorageID.ToString(),
                         Text = $"{s.Type} {s.Capacity} (Còn: {s.Quantity})",
                         Quantity = s.Quantity
                     }),
 
                 ProductType.Service => _context.Services
-                    .Select(s => new {
+                    .Select(s => new
+                    {
                         Value = s.ServiceID.ToString(),
                         Text = s.ServiceName,
                         Quantity = 100 // Dịch vụ không giới hạn số lượng
@@ -118,12 +125,31 @@ namespace LaptopStore.Controllers
             return Json(products.ToList());
         }
 
-
-
         // GET: OrderDetails/Create
         // GET: OrderDetails/Create
-        public IActionResult Create()
+        public IActionResult Create(int? orderId)
         {
+            if (orderId == null)
+            {
+                TempData["ErrorMessage"] = "Cần có mã đơn hàng để thêm chi tiết sản phẩm.";
+                return RedirectToAction("Index", "Orders"); // Hoặc một trang lỗi/thông báo phù hợp
+            }
+
+            var order = _context.Orders.Find(orderId.Value); // Kiểm tra OrderID có hợp lệ không
+            if (order == null)
+            {
+                TempData["ErrorMessage"] = "Đơn hàng không tồn tại.";
+                return RedirectToAction("Index", "Orders");
+            }
+
+            var orderDetail = new OrderDetail
+            {
+                OrderID = orderId.Value // Gán OrderID cho đối tượng OrderDetail mới
+            };
+
+            // Truyền OrderID sang View để dùng cho các link "Hủy" hoặc hiển thị thông tin
+            ViewData["CurrentOrderID"] = orderId.Value;
+
             // Tạo SelectList từ enum với Display Name
             var productTypes = Enum.GetValues(typeof(ProductType))
                 .Cast<ProductType>()
@@ -139,9 +165,10 @@ namespace LaptopStore.Controllers
 
             ViewBag.ProductType = new SelectList(productTypes, "Value", "Text");
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
-            return View();
+            return View(orderDetail);
         }
 
+        
         // POST: OrderDetails/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -165,8 +192,8 @@ namespace LaptopStore.Controllers
                         await UpdateOrderTotalPrice(orderDetail.OrderID);
 
                         await transaction.CommitAsync();
-                        return RedirectToAction(nameof(Index));
-                    }
+                        return RedirectToAction("Details", "Orders", new { id = orderDetail.OrderID });
+                }
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
@@ -177,7 +204,7 @@ namespace LaptopStore.Controllers
 
             ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
-            return View(orderDetail);
+            return RedirectToAction("Details", "Orders", new { id = orderDetail.OrderID });
         }
 
         private async Task UpdateProductQuantity(ProductType productType, int productId, int quantity, bool isReturn = false)

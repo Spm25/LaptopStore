@@ -50,17 +50,36 @@
                     <span asp-validation-for="WarrantyPeriod" class="text-danger"></span>
                 </div>
 
-                <div class="form-group col-md-6">
+                @if (ViewData["CurrentOrderID"] != null)
+                {
+                    <input type="hidden" asp-for="OrderID" value="@ViewData["CurrentOrderID"]" />
+                    <div class="form-group">
+                        <label>Đơn hàng số:</label>
+                        <input type="text" class="form-control" value="@ViewData["CurrentOrderID"]" readonly />
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label asp-for="OrderID" class="control-label"></label>
+                        <select asp-for="OrderID" class="form-control" asp-items="ViewBag.OrderList">
+                            <option value="">-- Chọn Đơn Hàng --</option>
+                        </select>
+                        <span asp-validation-for="OrderID" class="text-danger"></span>
+                    </div>
+                }
+                @* <div class="form-group col-md-6">
                     <label asp-for="OrderID">Mã đơn hàng</label>
                     <select asp-for="OrderID" class="form-control select2-tag" asp-items="ViewBag.OrderID"></select>
                     <span asp-validation-for="OrderID" class="text-danger"></span>
-                </div>
+                </div> *@
             </div>
         </div>
 
-        <div class="card-footer text-right">
-            <input type="submit" value="Tạo chi tiết đơn hàng" class="btn btn-primary" />
-            <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Thêm vào đơn hàng</button>
+            @* Nút Hủy trỏ về trang Details của Order gốc *@
+            <a asp-controller="Orders" asp-action="Details" asp-route-id="@ViewData["CurrentOrderID"]" class="btn btn-secondary">Hủy</a>
         </div>
     </form>
 

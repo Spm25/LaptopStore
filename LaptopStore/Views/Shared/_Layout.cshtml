@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="~/AdminLte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" />
     <link rel="stylesheet" href="~/AdminLte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" />
 
+    @await RenderSectionAsync("Styles", required: false)
+
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">

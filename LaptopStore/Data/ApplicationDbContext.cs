@@ -38,7 +38,7 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<OrderDetail>()
             .HasOne(od => od.Order)
-            .WithMany()
+            .WithMany(o => o.OrderDetails)
             .HasForeignKey(od => od.OrderID);
 
         // Seed Users

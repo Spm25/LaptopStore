@@ -1,49 +1,134 @@
 ﻿@model LaptopStore.Models.Order
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa đơn hàng";
 }
 
-<h1>Edit</h1>
-
-<h4>Order</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="OrderID" />
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Paid" /> @Html.DisplayNameFor(model => model.Paid)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="CustomerID" class="control-label"></label>
-                <select asp-for="CustomerID" class="form-control" asp-items="ViewBag.CustomerID"></select>
-                <span asp-validation-for="CustomerID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserID" class="control-label"></label>
-                <select asp-for="UserID" class="form-control" asp-items="ViewBag.UserID"></select>
-                <span asp-validation-for="UserID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="card card-warning">
+    <div class="card-header">
+        <h3 class="card-title">Chỉnh sửa đơn hàng #@Model.OrderID</h3>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <form asp-action="Edit">
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="OrderID" />
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="OrderDate">Ngày đặt hàng</label>
+                    <input asp-for="OrderDate" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="TotalPrice">Tổng tiền</label>
+                    <div class="input-group">
+                        <input asp-for="TotalPrice" class="form-control" type="number" step="0.01" />
+                        <div class="input-group-append">
+                            <span class="input-group-text">đ</span>
+                        </div>
+                    </div>
+                    <span asp-validation-for="TotalPrice" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6 mt-2">
+                    <label>Trạng thái thanh toán</label><br />
+                    <div class="form-group clearfix mt-1">
+                        <div class="icheck-success d-inline mr-3">
+                            <input type="radio" id="radioPaidTrue" name="Paid" value="true" @(Model.Paid ? "checked" : "") />
+                            <label for="radioPaidTrue">Đã thanh toán</label>
+                        </div>
+                        <div class="icheck-danger d-inline">
+                            <input type="radio" id="radioPaidFalse" name="Paid" value="false" @(!Model.Paid ? "checked" : "") />
+                            <label for="radioPaidFalse">Chưa thanh toán</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Paid" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="CustomerID">Khách hàng</label>
+                    <select asp-for="CustomerID" class="form-control select2" asp-items="ViewBag.CustomerID">
+                        <option value="">Chọn khách hàng</option>
+                    </select>
+                    <span asp-validation-for="CustomerID" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="UserID">Người xử lý</label>
+                    <select asp-for="UserID" class="form-control select2" asp-items="ViewBag.UserID">
+                        <option value="">Chọn nhân viên</option>
+                    </select>
+                    <span asp-validation-for="UserID" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Thông tin chi tiết đơn hàng -->
+            <div class="form-row">
+                <div class="col-12">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Thông tin hiện tại</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Khách hàng hiện tại:</strong> @Model.Customer?.FullName<br>
+                                    <strong>Điện thoại:</strong> @Model.Customer?.Phone<br>
+                                    <strong>Email:</strong> @Model.Customer?.Email
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Người tạo:</strong> @Model.User?.UserName<br>
+                                    <strong>Ngày tạo:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")<br>
+                                    <strong>Trạng thái:</strong>
+                                    @if (Model.Paid)
+                                    {
+                                        <span class="badge badge-success">Đã thanh toán</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning">Chưa thanh toán</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-right">
+            <button type="submit" class="btn btn-warning">
+                <i class="fas fa-save"></i> Lưu thay đổi
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(function () {
+            $('.select2').select2({
+                placeholder: "Chọn một lựa chọn",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // iCheck for radio buttons
+            $('input[type="radio"]').iCheck({
+                radioClass: 'iradio_flat-green'
+            });
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

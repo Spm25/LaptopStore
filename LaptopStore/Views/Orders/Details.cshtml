@@ -1,42 +1,221 @@
-﻿@model LaptopStore.Models.Order
+﻿@model LaptopStore.ViewModels.OrderDetailsPageViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.OrderID;
 }
 
-<h1>Details</h1>
+<div class="container-fluid">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>@ViewData["Title"]</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a asp-action="Index">Danh sách đơn hàng</a></li>
+                        <li class="breadcrumb-item active">Chi tiết đơn hàng</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div>
-    <h4>Order</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Paid)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Paid)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Customer)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Customer.CustomerID)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.UserID)
-        </dd>
-    </dl>
+    @* Hiển thị thông báo từ TempData *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Thông tin chung</h3>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Mã đơn hàng:</dt>
+                    <dd class="col-sm-9">#@Model.OrderID</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderDate):</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.OrderDate)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Paid):</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Paid)
+                        {
+                            <span class="badge badge-success">Đã thanh toán</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning">Chưa thanh toán</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderTotalPrice):</dt>
+                    <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.OrderTotalPrice)</strong></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">Thông tin khách hàng</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.CustomerInfo.FullName):</dt>
+                            <dd class="col-sm-8">@Model.CustomerInfo.FullName</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.CustomerInfo.Phone):</dt>
+                            <dd class="col-sm-8">@Model.CustomerInfo.Phone</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.CustomerInfo.Email):</dt>
+                            <dd class="col-sm-8">@Model.CustomerInfo.Email</dd>
+
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.CustomerInfo.Address):</dt>
+                            <dd class="col-sm-8">@Model.CustomerInfo.Address</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">Nhân viên tạo đơn</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.UserInfo.UserName):</dt>
+                            <dd class="col-sm-8">@Model.UserInfo.UserName</dd>
+
+                            <dt class="col-sm-4">Mã nhân viên:</dt>
+                            <dd class="col-sm-8">@Model.UserInfo.UserID</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Chi tiết sản phẩm/dịch vụ</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">STT</th>
+                            <th>@Html.DisplayNameFor(model => model.OrderDetails.First().ProductName)</th>
+                            <th>@Html.DisplayNameFor(model => model.OrderDetails.First().ProductDescription)</th>
+                            <th style="width: 10%">@Html.DisplayNameFor(model => model.OrderDetails.First().ProductTypeName)</th>
+                            <th style="width: 8%">@Html.DisplayNameFor(model => model.OrderDetails.First().Quantity)</th>
+                            <th style="width: 12%" class="text-right">@Html.DisplayNameFor(model => model.OrderDetails.First().UnitPrice)</th>
+                            <th style="width: 10%" class="text-right">@Html.DisplayNameFor(model => model.OrderDetails.First().TotalLinePrice)</th>
+                            <th style="width: 12%">@Html.DisplayNameFor(model => model.OrderDetails.First().WarrantyPeriod)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+                        {
+                            int count = 1;
+                            foreach (var item in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td>@(count++)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.ProductDescription)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.ProductTypeName)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
+                                    <td class="text-right">@Html.DisplayFor(modelItem => item.UnitPrice)</td>
+                                    <td class="text-right">@Html.DisplayFor(modelItem => item.TotalLinePrice)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.WarrantyPeriod)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center">Không có chi tiết sản phẩm/dịch vụ nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6" class="text-right"><strong>Tổng cộng tiền hàng:</strong></td>
+                            <td class="text-right"><strong>@Model.OrderTotalPrice.ToString("N0") VNĐ</strong></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.OrderID" class="btn btn-primary"><i class="fas fa-edit"></i> Sửa đơn hàng</a>
+
+            @* Form và Nút Tính lại tổng tiền *@
+            <form asp-action="RecalculateTotalPrice" asp-route-orderId="@Model.OrderID" method="post" style="display: inline-block; margin-left: 5px;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-info" onclick="return confirm('Bạn có chắc chắn muốn tính lại tổng tiền cho đơn hàng này?');">
+                    <i class="fas fa-calculator"></i> Tính lại tổng tiền
+                </button>
+            </form>
+
+            @* Nút Thêm Chi Tiết Đơn Hàng (OrderDetail) sẽ được thêm ở bước sau *@
+            <a asp-controller="OrderDetails" asp-action="Create" asp-route-orderId="@Model.OrderID" class="btn btn-success" style="margin-left: 5px;">
+                <i class="fas fa-plus"></i> Thêm sản phẩm vào đơn
+            </a>
+
+            <a asp-action="Index" class="btn btn-secondary float-right"><i class="fas fa-arrow-left"></i> Quay lại danh sách</a>
+        </div>
+    </section>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Styles {
+    <style>
+        .card-body dl.row dt {
+            font-weight: normal;
+            color: #555;
+        }
+
+        .card-body dl.row dd {
+            font-weight: bold;
+        }
+
+        .table th {
+            vertical-align: middle !important;
+        }
+    </style>
+}
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(function () {
+            // Tự động ẩn thông báo sau vài giây
+            window.setTimeout(function () {
+                $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                    $(this).remove();
+                });
+            }, 5000); // 5 giây
+        });
+    </script>
+}
