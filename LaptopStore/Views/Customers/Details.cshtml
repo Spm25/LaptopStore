@@ -1,42 +1,153 @@
 ﻿@model LaptopStore.Models.Customer
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = $"Chi tiết Khách hàng - {Model.FullName}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
 
-<div>
-    <h4>Customer</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Phone)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Phone)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-    </dl>
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-user"></i> Thông tin chi tiết: <strong>@Model.FullName</strong>
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <h4><i class="fas fa-info-circle text-info"></i> Thông tin liên hệ</h4>
+                <hr />
+                <dl class="row">
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.FullName)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.FullName)
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Phone)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Phone)
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Email)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Email)
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Address)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Address)
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4><i class="fas fa-shopping-cart text-success"></i> Thông tin Mua hàng</h4>
+                <hr />
+                <dl class="row">
+                    <dt class="col-sm-3">
+                        Tổng số đơn hàng
+                    </dt>
+                    <dd class="col-sm-9">
+                        @ViewData["TotalOrders"]
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        Tổng tiền hàng đã mua
+                    </dt>
+                    <dd class="col-sm-9">
+                        @ViewData["TotalAmountPurchased"] VNĐ
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        Số tiền còn nợ
+                    </dt>
+                    <dd class="col-sm-9">
+                        <strong class="text-danger">@ViewData["TotalAmountOwed"] VNĐ</strong>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        @{
+            var customerOrders = ViewData["CustomerOrdersList"] as List<LaptopStore.Models.Order> ?? new List<LaptopStore.Models.Order>();
+        }
+
+        @if (customerOrders.Any())
+        {
+            <h4 class="mt-4"><i class="fas fa-history text-secondary"></i> Lịch sử Đơn hàng</h4>
+            <hr />
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>Mã ĐH</th>
+                            <th>Ngày Đặt</th>
+                            <th class="text-right">Tổng Tiền</th>
+                            <th>Trạng Thái TT</th>
+                            <th>NV Tạo</th>
+                            <th class="text-center">Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in customerOrders)
+                        {
+                            <tr>
+                                <td>@order.OrderID</td>
+                                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-right">@order.TotalPrice.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) VNĐ</td>
+                                <td class="text-center">
+                                    @if (order.Paid)
+                                    {
+                                        <span class="badge badge-success">Đã TT</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning">Chưa TT</span>
+                                    }
+                                </td>
+                                <td>@(order.User != null ? order.User.UserName : "N/A")</td>
+                                <td class="text-center">
+                                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderID" class="btn btn-xs btn-info" title="Xem chi tiết đơn hàng">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="mt-3"><em>Khách hàng này chưa có đơn hàng nào.</em></p>
+        }
+    </div>
+    <div class="card-footer text-right">
+        <a asp-action="Edit" asp-route-id="@Model.CustomerID" class="btn btn-warning"><i class="fas fa-edit"></i> Sửa thông tin</a>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại DS Khách hàng</a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.CustomerID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

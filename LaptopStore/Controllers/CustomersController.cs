@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using LaptopStore.Data;
 using LaptopStore.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Globalization;
 
 namespace LaptopStore.Controllers
 {
@@ -35,14 +36,41 @@ namespace LaptopStore.Controllers
                 return NotFound();
             }
 
+            // Bước 1: Lấy thông tin cơ bản của khách hàng
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(m => m.CustomerID == id);
+
             if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            // Bước 2: Truy vấn tường minh danh sách đơn hàng của khách hàng này từ bảng Orders
+            var ordersForCustomer = await _context.Orders
+                .Where(o => o.CustomerID == customer.CustomerID)
+                .OrderByDescending(o => o.OrderDate) // Sắp xếp đơn hàng mới nhất lên đầu
+                .ToListAsync();
+
+            // Tính toán các thông tin tổng hợp từ danh sách ordersForCustomer
+            int totalOrders = 0;
+            float totalAmountPurchased = 0;
+            float totalAmountOwed = 0;
+
+            if (ordersForCustomer.Any()) // Kiểm tra nếu có đơn hàng
+            {
+                totalOrders = ordersForCustomer.Count();
+                totalAmountPurchased = ordersForCustomer.Sum(o => o.TotalPrice);
+                totalAmountOwed = ordersForCustomer.Where(o => !o.Paid).Sum(o => o.TotalPrice);
+            }
+
+            ViewData["TotalOrders"] = totalOrders;
+            ViewData["TotalAmountPurchased"] = totalAmountPurchased.ToString("N0", CultureInfo.InvariantCulture);
+            ViewData["TotalAmountOwed"] = totalAmountOwed.ToString("N0", CultureInfo.InvariantCulture);
+
+            // Truyền danh sách đơn hàng sang View để hiển thị chi tiết (nếu cần)
+            ViewData["CustomerOrdersList"] = ordersForCustomer;
+
+            return View(customer); // Vẫn truyền model Customer cho các thông tin cơ bản
         }
 
         // GET: Customers/Create

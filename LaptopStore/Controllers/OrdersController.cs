@@ -199,14 +199,17 @@ namespace LaptopStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderID,OrderDate,Paid,CustomerID,UserID")] Order order)
         {
+            //if (ModelState.IsValid)
             
-            _context.Add(order);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                _context.Add(order);
+                await _context.SaveChangesAsync();
+                // Chuyển hướng đến trang chi tiết của đơn hàng vừa tạo trong OrdersController
+                return RedirectToAction(nameof(Details), new { id = order.OrderID });
             
-            ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID", order.CustomerID);
-            ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID", order.UserID);
-            return View(order);
+
+            //ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID", order.CustomerID);
+            //ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID", order.UserID);
+            //return View(order);
         }
 
         // GET: Orders/Edit/5

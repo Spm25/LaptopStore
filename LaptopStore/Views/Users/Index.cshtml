@@ -1,47 +1,155 @@
 ﻿@model IEnumerable<LaptopStore.Models.User>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách người dùng";
 }
 
-<h1>Index</h1>
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Password)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Role)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Role)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.UserID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.UserID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.UserID">Delete</a>
-            </td>
-        </tr>
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Quản lý danh sách người dùng</h3>
+                <div class="card-tools">
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="fas fa-plus-square mr-2"></i>Tạo người dùng mới
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info" role="alert">
+                        Hiện tại chưa có người dùng nào trong hệ thống.
+                    </div>
+                }
+                else
+                {
+                    <table id="usersTable" class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">#</th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UserName)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Role)
+                                </th>
+                                <th style="width: 15%;" class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int index = 1;
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@index</td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.UserName)
+                                        </td>
+
+
+                                        <td>
+                                            @if (item.Role == LaptopStore.Models.UserRole.Admin)
+                                            {
+                                                <span class="badge badge-danger">@Html.DisplayFor(modelItem => item.Role)</span>
+                                            }
+                                            else if (item.Role == LaptopStore.Models.UserRole.Staff)
+                                            {
+                                                <span class="badge badge-warning">@Html.DisplayFor(modelItem => item.Role)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-info">@Html.DisplayFor(modelItem => item.Role)</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <a asp-action="Edit" asp-route-id="@item.UserID" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.UserID" class="btn btn-sm btn-outline-info" title="Chi tiết">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.UserID" class="btn btn-sm btn-outline-danger" title="Xoá">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/AdminLte/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/AdminLte/plugins/jszip/jszip.min.js"></script>
+    <script src="~/AdminLte/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/AdminLte/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#usersTable").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": [
+                    { extend: 'copy', text: '<i class="fas fa-copy"></i> Sao chép' },
+                    { extend: 'csv', text: '<i class="fas fa-file-csv"></i> CSV' },
+                    { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel' },
+                    { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i> PDF' },
+                    { extend: 'print', text: '<i class="fas fa-print"></i> In' },
+                    { extend: 'colvis', text: '<i class="fas fa-columns"></i> Cột hiển thị' }
+                ],
+                "language": {
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "previous": "<i class='fas fa-angle-left'></i>",
+                        "next": "<i class='fas fa-angle-right'></i>"
+                    },
+                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ người dùng",
+                    "infoEmpty": "Không có người dùng nào",
+                    "zeroRecords": "Không tìm thấy kết quả phù hợp",
+                    "lengthMenu": "Hiển thị _MENU_ người dùng",
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                    "infoFiltered": "(lọc từ _MAX_ tổng số người dùng)"
+                },
+                 "columnDefs": [
+                    { "orderable": false, "targets": 5 } // Không cho sắp xếp cột Thao tác
+                ],
+                "order": [[0, "asc"]] // Sắp xếp theo cột STT tăng dần
+            }).buttons().container().appendTo('#usersTable_wrapper .col-md-6:eq(0)');
+        });
+    </script>
 }
-    </tbody>
-</table>

@@ -1,48 +1,52 @@
 ﻿@model LaptopStore.Models.Customer
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm mới Khách hàng";
 }
 
-<h1>Create</h1>
-
-<h4>Customer</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Thông tin Khách hàng</h3>
     </div>
-</div>
+    <form asp-action="Create">
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="FullName" class="control-label">Họ và tên</label>
+                    <input asp-for="FullName" class="form-control" placeholder="VD: Nguyễn Văn A" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="Phone" class="control-label">Số điện thoại</label>
+                    <input asp-for="Phone" class="form-control" placeholder="VD: 09xxxxxxxx" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+            </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="Email" class="control-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="VD: email@example.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="Address" class="control-label">Địa chỉ</label>
+                    <input asp-for="Address" class="form-control" placeholder="VD: Số 1, Đường ABC, Quận XYZ, TP HCM" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-right">
+            <input type="submit" value="Thêm mới" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

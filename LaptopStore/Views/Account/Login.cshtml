@@ -1,31 +1,184 @@
-﻿@using LaptopStore.Models;
-@model User;
+﻿@using LaptopStore.Models
+@model User
 
 @{
-    ViewData["Title"] = "Login";
-    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml"; // Đảm bảo layout này phù hợp
 }
 
-<div class="account-container">
-    <div class="account-box">
-        <h2 class="text-center mb-4">Login</h2>
-        <form asp-action="Login" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="UserName" class="form-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+@* Thêm phần style nội bộ để tùy chỉnh nhanh nếu không muốn sửa file CSS nhiều *@
+<style>
+    .login-page {
+        background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%); /* Màu gradient mới */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 15px; /* Thêm padding để tránh dính sát viền trên mobile */
+    }
+
+    .login-box {
+        width: 100%; /* Cho phép full width trên mobile */
+        max-width: 400px; /* Giới hạn độ rộng tối đa */
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        margin: auto; /* Căn giữa login-box */
+    }
+
+    .login-logo {
+        padding-top: 20px;
+    }
+
+        .login-logo a {
+            color: #4A5073;
+            font-size: 2rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-logo img {
+            max-height: 50px;
+            margin-bottom: 10px;
+        }
+
+    .login-card-body {
+        padding: 30px;
+    }
+
+    .login-box-msg {
+        margin-bottom: 25px;
+        font-size: 1.1rem;
+        color: #555;
+        text-align: center;
+    }
+
+    .input-group .form-control {
+        border-right: 0;
+    }
+
+        .input-group .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #80bdff;
+        }
+
+    .input-group .input-group-text {
+        background-color: transparent;
+        border-left: 0;
+    }
+        /* CSS để đảm bảo icon có màu và hiển thị */
+        .input-group .input-group-text .fas {
+            color: #495057; /* Màu xám đậm tiêu chuẩn, bạn có thể thay đổi */
+            font-size: 1rem; /* Đảm bảo kích thước font cho icon */
+        }
+
+    .btn-login {
+        background-color: #5e72e4;
+        border-color: #5e72e4;
+        color: #fff;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-login:hover, .btn-login:focus {
+            background-color: #4155c7;
+            border-color: #3b4bb3;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(94, 114, 228, 0.4);
+        }
+
+    .icheck-primary > label {
+        font-weight: normal;
+        color: #555;
+        cursor: pointer;
+    }
+
+    .login-card-body .text-danger ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .login-card-body .text-danger li {
+        /* Style cho từng li nếu cần */
+    }
+
+
+    .extra-links {
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+
+        .extra-links a {
+            color: #5e72e4;
+            text-decoration: none;
+        }
+
+            .extra-links a:hover {
+                text-decoration: underline;
+            }
+
+</style>
+
+<div class="login-box">
+    <div class="login-logo text-center pt-4">
+        @* Thay thế bằng logo của bạn nếu có *@
+        @* <img src="~/images/your-logo.png" alt="Laptop Store Logo" /> *@
+        <a asp-controller="Home" asp-action="Index"><b>Laptop</b>Store</a>
+    </div>
+    <div class="card shadow-none border-0">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg">Đăng nhập để tiếp tục</p>
+
+            <form asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="input-group mb-3">
+                    <input asp-for="UserName" class="form-control" placeholder="Tên đăng nhập" autocomplete="username" />
+                    
+                </div>
+
+                <div class="input-group mb-4">
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Mật khẩu" autocomplete="current-password" />
+                    
+                </div>
+
+                <div class="row">
+                    <div class="col-7">
+                        <div class="icheck-primary">
+                            <input type="checkbox" id="remember" name="rememberMe" value="true">
+                            <label for="remember">
+                                Ghi nhớ tôi
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <button type="submit" class="btn btn-login btn-block w-100">Đăng nhập</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="extra-links text-center">
+                <p class="mb-1">
+                    <a asp-action="ForgotPassword">Quên mật khẩu?</a>
+                </p>
+                <p class="mb-0">
+                    <a asp-action="Register" class="text-center">Đăng ký tài khoản mới</a>
+                </p>
             </div>
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            
-            <input type="submit" value="Login" class="btn btn-success w-100 p-2" />
-        </form>
+        </div>
     </div>
 </div>
 
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
