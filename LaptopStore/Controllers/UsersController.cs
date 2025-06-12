@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using LaptopStore.Data;
 using LaptopStore.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Cryptography; // Thêm thư viện này
+using System.Text; // Thêm thư viện này
 
 namespace LaptopStore.Controllers
 {
@@ -19,6 +21,26 @@ namespace LaptopStore.Controllers
         public UsersController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        // Phương thức để băm mật khẩu sử dụng SHA256 (COPY TỪ ACCOUNTCONTROLLER SANG ĐÂY)
+        private string HashPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                return string.Empty;
+            }
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
 
         // GET: Users
@@ -52,14 +74,14 @@ namespace LaptopStore.Controllers
         }
 
         // POST: Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserID,UserName,Password,Role")] User user)
         {
             if (ModelState.IsValid)
             {
+                // Băm mật khẩu trước khi thêm người dùng mới
+                user.Password = HashPassword(user.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -84,8 +106,6 @@ namespace LaptopStore.Controllers
         }
 
         // POST: Users/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UserID,UserName,Password,Role")] User user)
@@ -99,7 +119,27 @@ namespace LaptopStore.Controllers
             {
                 try
                 {
-                    _context.Update(user);
+                    // Lấy thông tin người dùng hiện tại từ database
+                    var existingUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == id);
+
+                    if (existingUser == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Nếu mật khẩu từ form không rỗng, băm và cập nhật mật khẩu mới
+                    if (!string.IsNullOrEmpty(user.Password))
+                    {
+                        existingUser.Password = HashPassword(user.Password);
+                    }
+                    // Cập nhật các trường khác từ user (từ form) vào existingUser
+                    existingUser.UserName = user.UserName;
+                    existingUser.Role = user.Role;
+                    // Nếu có các trường khác trong model User mà bạn muốn giữ nguyên (không cho phép chỉnh sửa qua form),
+                    // thì không cần gán lại chúng ở đây, hoặc bạn có thể chỉ bind những trường được phép thay đổi.
+
+
+                    _context.Update(existingUser); // Cập nhật entity đã được tải từ DB
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
