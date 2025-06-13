@@ -107,6 +107,116 @@
                 </div>
             </div>
         </div>
+
+        @* <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Sản phẩm còn bảo hành</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">#</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Loại</th>
+                                    <th>Số lượng</th>
+                                    <th class="text-right">Đơn giá</th>
+                                    <th>Ngày bán</th>
+                                    <th>Thời hạn bảo hành (tháng)</th>
+                                    <th>Còn lại (ngày)</th>
+                                    <th>Khách hàng</th>
+                                    <th>Số điện thoại</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.ProductsUnderWarranty != null && Model.ProductsUnderWarranty.Any())
+                                {
+                                    int count = 1;
+                                    foreach (var item in Model.ProductsUnderWarranty)
+                                    {
+                                        <tr>
+                                            <td>@(count++)</td>
+                                            <td>@item.ProductName</td>
+                                            <td>@item.ProductType</td>
+                                            <td>@item.Quantity</td>
+                                            <td class="text-right">@item.UnitPrice.ToString("N0")₫</td>
+                                            <td>@item.OrderDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.WarrantyPeriodMonths</td>
+                                            <td>
+                                                @if (item.RemainingWarrantyDays > 0)
+                                                {
+                                                    <span>@item.RemainingWarrantyDays ngày</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">Hết hạn</span>
+                                                }
+                                            </td>
+                                            <td>@item.CustomerName</td>
+                                            <td>@item.CustomerPhone</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="10" class="text-center">Không có sản phẩm nào còn trong thời gian bảo hành.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Khách hàng còn nợ</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">#</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Số đơn hàng chưa thanh toán</th>
+                                    <th class="text-right">Tổng nợ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.CustomersWithDebt != null && Model.CustomersWithDebt.Any())
+                                {
+                                    int count = 1;
+                                    foreach (var customerDebt in Model.CustomersWithDebt)
+                                    {
+                                        <tr>
+                                            <td>@(count++)</td>
+                                            <td>@customerDebt.CustomerName</td>
+                                            <td>@customerDebt.CustomerPhone</td>
+                                            <td>@customerDebt.NumberOfUnpaidOrders</td>
+                                            <td class="text-right">@customerDebt.TotalDebt.ToString("N0")₫</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center">Không có khách hàng nào còn nợ.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+
     </div>
 </section>
 
