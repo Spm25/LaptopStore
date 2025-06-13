@@ -67,7 +67,7 @@
                     </dd>
 
                     <dt class="col-sm-3">@Html.DisplayNameFor(model => model.OrderTotalPrice):</dt>
-                    <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.OrderTotalPrice)</strong></dd>
+                    <dd class="col-sm-9"><strong>@Model.OrderTotalPrice.ToString("N0") VNĐ</strong></dd>
                 </dl>
             </div>
         </div>
@@ -127,8 +127,9 @@
                             <th style="width: 10%">@Html.DisplayNameFor(model => model.OrderDetails.First().ProductTypeName)</th>
                             <th style="width: 8%">@Html.DisplayNameFor(model => model.OrderDetails.First().Quantity)</th>
                             <th style="width: 12%" class="text-right">@Html.DisplayNameFor(model => model.OrderDetails.First().UnitPrice)</th>
-                            <th style="width: 10%" class="text-right">@Html.DisplayNameFor(model => model.OrderDetails.First().TotalLinePrice)</th>
+                            <th style="width: 10%" class="text-right">Thành tiền</th>
                             <th style="width: 12%">@Html.DisplayNameFor(model => model.OrderDetails.First().WarrantyPeriod)</th>
+                            <th style="width: 10%">Thao tác</th> @* Thêm cột thao tác *@
                         </tr>
                     </thead>
                     <tbody>
@@ -142,17 +143,25 @@
                                     <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
                                     <td>@Html.DisplayFor(modelItem => item.ProductDescription)</td>
                                     <td>@Html.DisplayFor(modelItem => item.ProductTypeName)</td>
-                                    <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
-                                    <td class="text-right">@Html.DisplayFor(modelItem => item.UnitPrice)</td>
-                                    <td class="text-right">@Html.DisplayFor(modelItem => item.TotalLinePrice)</td>
+                                    <td>@item.Quantity.ToString("N0")</td>
+                                    <td class="text-right">@item.UnitPrice.ToString("N0") VNĐ</td>
+                                    <td class="text-right">@item.TotalLinePrice.ToString("N0") VNĐ</td>
                                     <td>@Html.DisplayFor(modelItem => item.WarrantyPeriod)</td>
+                                    <td class="text-center">
+                                        <a asp-controller="OrderDetails" asp-action="Edit" asp-route-id="@item.OrderDetailID" class="btn btn-sm btn-warning" title="Sửa chi tiết">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-controller="OrderDetails" asp-action="Delete" asp-route-id="@item.OrderDetailID" class="btn btn-sm btn-danger" title="Xóa chi tiết" onclick="return confirm('Bạn có chắc chắn muốn xóa chi tiết đơn hàng này? Thao tác này sẽ cập nhật lại số lượng tồn kho và tổng tiền đơn hàng.');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
                                 </tr>
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="8" class="text-center">Không có chi tiết sản phẩm/dịch vụ nào.</td>
+                                <td colspan="9" class="text-center">Không có chi tiết sản phẩm/dịch vụ nào.</td>
                             </tr>
                         }
                     </tbody>
@@ -160,7 +169,7 @@
                         <tr>
                             <td colspan="6" class="text-right"><strong>Tổng cộng tiền hàng:</strong></td>
                             <td class="text-right"><strong>@Model.OrderTotalPrice.ToString("N0") VNĐ</strong></td>
-                            <td></td>
+                            <td colspan="2"></td>
                         </tr>
                     </tfoot>
                 </table>

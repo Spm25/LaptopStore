@@ -1,6 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Báo cáo và Thống kê";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+﻿@model LaptopStore.ViewModels.ReportsViewModel
+
+@{
+    ViewData["Title"] = "Báo cáo tổng hợp";
 }
 
 <div class="content-header">
@@ -11,7 +12,7 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
                     <li class="breadcrumb-item active">Báo cáo</li>
                 </ol>
             </div>
@@ -22,66 +23,86 @@
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-7">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-chart-line mr-1"></i>
-                            Doanh thu theo tháng (12 tháng gần nhất)
-                        </h3>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>@Model.TotalRevenue.ToString("N0")<sup style="font-size: 20px">₫</sup></h3>
+                        <p>Tổng doanh thu</p>
                     </div>
-                    <div class="card-body">
-                        <div class="chart">
-                            <canvas id="revenueOverTimeChart" style="min-height: 300px; height: 300px; max-height: 350px; max-width: 100%;"></canvas>
-                        </div>
+                    <div class="icon">
+                        <i class="ion ion-stats-bars"></i>
                     </div>
+                    <a asp-controller="Orders" asp-action="Index" class="small-box-footer">
+                        Xem chi tiết <i class="fas fa-arrow-circle-right"></i>
+                    </a>
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div class="card card-success">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-chart-pie mr-1"></i>
-                            Tỷ lệ doanh thu theo Loại sản phẩm
-                        </h3>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>@Model.TotalOrders</h3>
+                        <p>Tổng số đơn hàng</p>
                     </div>
-                    <div class="card-body">
-                        <div class="chart">
-                            <canvas id="revenueByProductTypeChart" style="min-height: 300px; height: 300px; max-height: 350px; max-width: 100%;"></canvas>
-                        </div>
+                    <div class="icon">
+                        <i class="ion ion-bag"></i>
                     </div>
+                    <a asp-controller="Orders" asp-action="Index" class="small-box-footer">
+                        Xem chi tiết <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@Model.UnpaidOrdersCount</h3>
+                        <p>Đơn hàng chưa thanh toán</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-alert-circled"></i>
+                    </div>
+                    <a asp-controller="Orders" asp-action="Index" class="small-box-footer">
+                        Xem chi tiết <i class="fas fa-arrow-circle-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-3">
-            <div class="col-lg-7">
-                <div class="card card-info">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-user-tie mr-1"></i>
-                            Doanh thu theo Nhân viên
-                        </h3>
+                        <h3 class="card-title">Doanh thu theo nhân viên</h3>
                     </div>
-                    <div class="card-body">
-                        <div class="chart">
-                            <canvas id="revenueByUserChart" style="min-height: 300px; height: 300px; max-height: 350px; max-width: 100%;"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="card card-warning">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-boxes mr-1"></i>
-                            Top 5 Loại sản phẩm bán chạy (Số lượng)
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart">
-                            <canvas id="topProductTypesChart" style="min-height: 300px; height: 300px; max-height: 350px; max-width: 100%;"></canvas>
-                        </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">#</th>
+                                    <th>Tên nhân viên</th>
+                                    <th class="text-right">Tổng doanh thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.EmployeeRevenues != null && Model.EmployeeRevenues.Any())
+                                {
+                                    int count = 1;
+                                    foreach (var employeeRevenue in Model.EmployeeRevenues)
+                                    {
+                                        <tr>
+                                            <td>@(count++)</td>
+                                            <td>@employeeRevenue.EmployeeName</td>
+                                            <td class="text-right">@employeeRevenue.TotalRevenue.ToString("N0")₫</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">Không có dữ liệu doanh thu nhân viên.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -90,169 +111,7 @@
 </section>
 
 @section Scripts {
-@* Đảm bảo _Layout.cshtml đã tải Chart.js một lần duy nhất trước section này *@
-@* Không cần dòng <script src="~/AdminLte/plugins/chart.js/Chart.min.js"></script> ở đây nữa *@
-
-    <script>
-        $(function () {
-            // Kiểm tra Chart.js đã sẵn sàng chưa
-            if (typeof Chart === 'undefined' || Chart === null || typeof Chart.defaults === 'undefined' || typeof Chart.defaults.font === 'undefined') {
-                console.error('Lỗi nghiêm trọng: Thư viện Chart.js chưa được tải đúng cách hoặc đối tượng Chart không hợp lệ! Kiểm tra file _Layout.cshtml.');
-                // Hiển thị thông báo lỗi trên trang nếu muốn
-                $('#revenueOverTimeChart').parent().html('<p class="text-danger text-center">Không thể tải thư viện biểu đồ. Vui lòng kiểm tra Console (F12).</p>');
-                $('#revenueByProductTypeChart').parent().html('<p class="text-danger text-center">Không thể tải thư viện biểu đồ.</p>');
-                $('#revenueByUserChart').parent().html('<p class="text-danger text-center">Không thể tải thư viện biểu đồ.</p>');
-                $('#topProductTypesChart').parent().html('<p class="text-danger text-center">Không thể tải thư viện biểu đồ.</p>');
-                return;
-            }
-
-            // --- Cấu hình chung cho Chart.js ---
-            Chart.defaults.font.family = "'Source Sans Pro', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'";
-            Chart.defaults.font.size = 13;
-
-            function formatCurrency(value) {
-                if (typeof value !== 'number') return value; // Trả về nguyên giá trị nếu không phải số
-                return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-            }
-
-            const generateRandomColors = (numColors) => {
-                const colors = [];
-                for (let i = 0; i < numColors; i++) {
-                    colors.push(`rgba(${Math.floor(Math.random() * 220)}, ${Math.floor(Math.random() * 220)}, ${Math.floor(Math.random() * 220)}, 0.7)`);
-                }
-                return colors;
-            };
-            const generateRandomBorderColors = (numColors) => {
-                const colors = [];
-                for (let i = 0; i < numColors; i++) {
-                     colors.push(`rgba(${Math.floor(Math.random() * 220)}, ${Math.floor(Math.random() * 220)}, ${Math.floor(Math.random() * 220)}, 1)`);
-                }
-                return colors;
-            };
-
-            // ===== BIỂU ĐỒ 1: Doanh thu theo thời gian (DỮ LIỆU TĨNH) =====
-            const fakeRevenueOverTimeResponse = {
-                labels: ["T1/24", "T2/24", "T3/24", "T4/24", "T5/24", "T6/24", "T7/24", "T8/24", "T9/24", "T10/24", "T11/24", "T12/24"],
-                data: [1500000, 1750000, 1600000, 1900000, 2100000, 1800000, 2200000, 2000000, 2300000, 2500000, 2400000, 2800000]
-            };
-            const ctxRevenueOverTime = document.getElementById('revenueOverTimeChart').getContext('2d');
-            new Chart(ctxRevenueOverTime, {
-                type: 'line',
-                data: {
-                    labels: fakeRevenueOverTimeResponse.labels,
-                    datasets: [{
-                        label: 'Doanh thu (Test)',
-                        data: fakeRevenueOverTimeResponse.data,
-                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                        borderColor: 'rgba(0, 123, 255, 1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { callback: value => formatCurrency(value) } } },
-                    plugins: { tooltip: { callbacks: { label: context => `${context.dataset.label}: ${formatCurrency(context.raw)}` } } }
-                }
-            });
-
-            // ===== BIỂU ĐỒ 2: Tỷ lệ doanh thu theo Loại sản phẩm (DỮ LIỆU TĨNH) =====
-            const fakeRevenueByProductTypeResponse = {
-                labels: ["Laptop", "Sạc", "RAM", "Dịch vụ", "Màn hình", "Pin"],
-                data: [12000000, 1000000, 3500000, 2500000, 1800000, 900000]
-            };
-            const ctxRevenueByProductType = document.getElementById('revenueByProductTypeChart').getContext('2d');
-            new Chart(ctxRevenueByProductType, {
-                type: 'doughnut',
-                data: {
-                    labels: fakeRevenueByProductTypeResponse.labels,
-                    datasets: [{
-                        data: fakeRevenueByProductTypeResponse.data,
-                        backgroundColor: generateRandomColors(fakeRevenueByProductTypeResponse.labels.length),
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.label || '';
-                                    if (label) { label += ': '; }
-                                    let value = context.raw;
-                                    if (value !== null && typeof value === 'number') {
-                                        label += formatCurrency(value);
-                                    }
-                                    const sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    if (sum > 0 && typeof value === 'number') {
-                                      const percentage = ((value / sum) * 100).toFixed(2) + '%';
-                                      label += ` (${percentage})`;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // ===== BIỂU ĐỒ 3: Doanh thu theo Nhân viên (DỮ LIỆU TĨNH) =====
-            const fakeRevenueByUserResponse = {
-                labels: ["nhanvien1", "admin", "Nhân Viên A"],
-                data: [7500000, 19200000, 1500000]
-            };
-            const ctxRevenueByUser = document.getElementById('revenueByUserChart').getContext('2d');
-            new Chart(ctxRevenueByUser, {
-                type: 'bar',
-                data: {
-                    labels: fakeRevenueByUserResponse.labels,
-                    datasets: [{
-                        label: 'Doanh thu (Test)',
-                        data: fakeRevenueByUserResponse.data,
-                        backgroundColor: generateRandomColors(fakeRevenueByUserResponse.labels.length),
-                        borderColor: generateRandomBorderColors(fakeRevenueByUserResponse.labels.length),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { callback: value => formatCurrency(value) } } },
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `${context.dataset.label}: ${formatCurrency(context.raw)}` } } }
-                }
-            });
-
-            // ===== BIỂU ĐỒ 4: Top Loại sản phẩm bán chạy (Số lượng) (DỮ LIỆU TĨNH) =====
-            const fakeTopProductTypesResponse = {
-                labels: ["Sạc", "RAM", "Laptop", "Dịch vụ", "Pin Laptop"],
-                data: [55, 42, 33, 25, 18]
-            };
-            const ctxTopProductTypes = document.getElementById('topProductTypesChart').getContext('2d');
-            new Chart(ctxTopProductTypes, {
-                type: 'bar',
-                data: {
-                    labels: fakeTopProductTypesResponse.labels,
-                    datasets: [{
-                        label: 'Số lượng bán (Test)',
-                        data: fakeTopProductTypesResponse.data,
-                        backgroundColor: generateRandomColors(fakeTopProductTypesResponse.labels.length),
-                        borderColor: generateRandomBorderColors(fakeTopProductTypesResponse.labels.length),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { x: { beginAtZero: true, ticks: { stepSize: 5 } } },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        });
-    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

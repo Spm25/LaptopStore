@@ -14,7 +14,7 @@
             <!-- CHỌN LOẠI SẢN PHẨM -->
             <div class="form-group">
                 <label asp-for="ProductType">Loại sản phẩm</label>
-                <select asp-for="ProductType" class="form-control" asp-items="ViewBag.ProductType" id="ProductType"><option value="">-- Chọn loại sản phẩm --</option></select>
+                <select asp-for="ProductType" class="form-control" asp-items="ViewBag.ProductType" id="ProductType"></select>@* <option value="">-- Chọn loại sản phẩm --</option> *@
                 <span asp-validation-for="ProductType" class="text-danger"></span>
             </div>
 
@@ -46,7 +46,7 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label asp-for="WarrantyPeriod">Thời gian bảo hành (tháng)</label>
-                    <input asp-for="WarrantyPeriod" class="form-control" />
+                    <input asp-for="WarrantyPeriod" class="form-control" type="number" min="0"  />
                     <span asp-validation-for="WarrantyPeriod" class="text-danger"></span>
                 </div>
 

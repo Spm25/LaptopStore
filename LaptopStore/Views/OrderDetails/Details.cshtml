@@ -1,54 +1,99 @@
 ﻿@model LaptopStore.Models.OrderDetail
-
+@inject LaptopStore.Data.ApplicationDbContext _context
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết đơn hàng";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>OrderDetail</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductID)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductID)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Quantity)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Quantity)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UnitPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UnitPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.WarrantyPeriod)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.WarrantyPeriod)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Order)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Order.OrderID)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderDetailID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="card card-info">
+    <div class="card-header">
+        <h3 class="card-title">Thông tin chi tiết đơn hàng</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">
+                Mã chi tiết đơn hàng
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.OrderDetailID)
+            </dd>
+            <dt class="col-sm-3">
+                Loại sản phẩm
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.ProductType)
+            </dd>
+            <dt class="col-sm-3">
+                Tên sản phẩm
+            </dt>
+            <dd class="col-sm-9">
+                @{
+                    // Hiển thị tên sản phẩm dựa trên ProductType
+                    string productName = "";
+                    switch (Model.ProductType)
+                    {
+                        case ProductType.Laptop:
+                            var laptop = await _context.Laptops.FindAsync(Model.ProductID);
+                            productName = $"{laptop?.Brand} {laptop?.Model} (CPU: {laptop?.CPU}, RAM: {laptop?.RAM})";
+                            break;
+                        case ProductType.RAM:
+                            var ram = await _context.RAMs.FindAsync(Model.ProductID);
+                            productName = $"{ram?.Capacity}GB {ram?.Type}";
+                            break;
+                        case ProductType.LaptopCharger:
+                            var charger = await _context.LaptopChargers.FindAsync(Model.ProductID);
+                            productName = $"{charger?.Wattage}W {charger?.Connector}";
+                            break;
+                        case ProductType.LaptopScreen:
+                            var screen = await _context.LaptopScreens.FindAsync(Model.ProductID);
+                            productName = $"{screen?.Resolution} {screen?.ScreenType}";
+                            break;
+                        case ProductType.LaptopBattery:
+                            var battery = await _context.LaptopBatteries.FindAsync(Model.ProductID);
+                            productName = $"{battery?.LaptopModel} {battery?.Capacity}";
+                            break;
+                        case ProductType.StorageDevice:
+                            var storage = await _context.StorageDevices.FindAsync(Model.ProductID);
+                            productName = $"{storage?.Type} {storage?.Capacity}";
+                            break;
+                        case ProductType.Service:
+                            var service = await _context.Services.FindAsync(Model.ProductID);
+                            productName = service?.ServiceName;
+                            break;
+                        default:
+                            productName = "Không xác định";
+                            break;
+                    }
+                }
+                @productName
+            </dd>
+            <dt class="col-sm-3">
+                Số lượng
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Quantity)
+            </dd>
+            <dt class="col-sm-3">
+                Đơn giá
+            </dt>
+            <dd class="col-sm-9">
+                @Model.UnitPrice.ToString("N0")
+            </dd>
+            <dt class="col-sm-3">
+                Thời gian bảo hành (tháng)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.WarrantyPeriod)
+            </dd>
+            <dt class="col-sm-3">
+                Đơn hàng số
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Order.OrderID)
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Edit" asp-route-id="@Model.OrderDetailID" class="btn btn-primary">Chỉnh sửa</a>
+        <a asp-controller="Orders" asp-action="Details" asp-route-id="@Model.OrderID" class="btn btn-secondary">Quay lại đơn hàng</a>
+    </div>
 </div>

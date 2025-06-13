@@ -4,6 +4,9 @@ namespace LaptopStore.Models
 {
     public enum ProductType
     {
+        [Display(Name = "Chọn loại sản phẩm")]
+        KhongCo,
+
         [Display(Name = "Laptop")]
         Laptop,
 

@@ -10,6 +10,7 @@ using LaptopStore.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
+using AspNetCoreHero.ToastNotification.Abstractions; // Thêm dòng này
 
 namespace LaptopStore.Controllers
 {
@@ -17,10 +18,12 @@ namespace LaptopStore.Controllers
     public class OrderDetailsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly INotyfService _notyf; // Khai báo INotyfService
 
-        public OrderDetailsController(ApplicationDbContext context)
+        public OrderDetailsController(ApplicationDbContext context, INotyfService notyf) // Thêm INotyfService vào constructor
         {
             _context = context;
+            _notyf = notyf; // Gán
         }
 
         // GET: OrderDetails
@@ -43,6 +46,7 @@ namespace LaptopStore.Controllers
                 .FirstOrDefaultAsync(m => m.OrderDetailID == id);
             if (orderDetail == null)
             {
+                _notyf.Error("Không tìm thấy chi tiết đơn hàng này."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -53,7 +57,10 @@ namespace LaptopStore.Controllers
         public IActionResult GetProductsByType(string type)
         {
             if (!Enum.TryParse(type, out ProductType productType))
+            {
+                _notyf.Error("Loại sản phẩm không hợp lệ."); // Thêm thông báo lỗi
                 return BadRequest("Loại sản phẩm không hợp lệ");
+            }
 
             var products = productType switch
             {
@@ -126,12 +133,12 @@ namespace LaptopStore.Controllers
         }
 
         // GET: OrderDetails/Create
-        // GET: OrderDetails/Create
         public IActionResult Create(int? orderId)
         {
             if (orderId == null)
             {
-                TempData["ErrorMessage"] = "Cần có mã đơn hàng để thêm chi tiết sản phẩm.";
+                //TempData["ErrorMessage"] = "Cần có mã đơn hàng để thêm chi tiết sản phẩm.";
+                _notyf.Error("Cần có mã đơn hàng để thêm chi tiết sản phẩm."); // Thêm thông báo lỗi
                 return RedirectToAction("Index", "Orders"); // Hoặc một trang lỗi/thông báo phù hợp
             }
 
@@ -139,6 +146,7 @@ namespace LaptopStore.Controllers
             if (order == null)
             {
                 TempData["ErrorMessage"] = "Đơn hàng không tồn tại.";
+                _notyf.Error("Đơn hàng không tồn tại."); // Thêm thông báo lỗi
                 return RedirectToAction("Index", "Orders");
             }
 
@@ -168,7 +176,7 @@ namespace LaptopStore.Controllers
             return View(orderDetail);
         }
 
-        
+
         // POST: OrderDetails/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -176,31 +184,32 @@ namespace LaptopStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderDetailID,ProductID,ProductType,Quantity,UnitPrice,WarrantyPeriod,OrderID")] OrderDetail orderDetail)
         {
-            
-                using (var transaction = await _context.Database.BeginTransactionAsync())
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
                 {
-                    try
-                    {
-                        // 1. Thêm OrderDetail mới
-                        _context.Add(orderDetail);
-                        await _context.SaveChangesAsync();
+                    // 1. Thêm OrderDetail mới
+                    _context.Add(orderDetail);
+                    await _context.SaveChangesAsync();
 
-                        // 2. Cập nhật số lượng sản phẩm
-                        await UpdateProductQuantity(orderDetail.ProductType, orderDetail.ProductID, orderDetail.Quantity);
+                    // 2. Cập nhật số lượng sản phẩm
+                    await UpdateProductQuantity(orderDetail.ProductType, orderDetail.ProductID, orderDetail.Quantity);
 
-                        // 3. Cập nhật tổng tiền đơn hàng
-                        await UpdateOrderTotalPrice(orderDetail.OrderID);
+                    // 3. Cập nhật tổng tiền đơn hàng
+                    await UpdateOrderTotalPrice(orderDetail.OrderID);
 
-                        await transaction.CommitAsync();
-                        return RedirectToAction("Details", "Orders", new { id = orderDetail.OrderID });
+                    await transaction.CommitAsync();
+                    _notyf.Success("Thêm chi tiết đơn hàng thành công!"); // Thêm thông báo thành công
+                    return RedirectToAction("Details", "Orders", new { id = orderDetail.OrderID });
                 }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        ModelState.AddModelError("", "Có lỗi xảy ra khi tạo chi tiết đơn hàng: " + ex.Message);
-                    }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Có lỗi xảy ra khi tạo chi tiết đơn hàng: " + ex.Message);
+                    _notyf.Error("Có lỗi xảy ra khi tạo chi tiết đơn hàng: " + ex.Message); // Thêm thông báo lỗi
                 }
-            
+            }
+
 
             ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
@@ -301,17 +310,16 @@ namespace LaptopStore.Controllers
         {
             if (id == null)
             {
+                _notyf.Error("ID chi tiết đơn hàng không hợp lệ."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
             var orderDetail = await _context.OrderDetails.FindAsync(id);
             if (orderDetail == null)
             {
+                _notyf.Error("Không tìm thấy chi tiết đơn hàng để chỉnh sửa."); // Thêm thông báo lỗi
                 return NotFound();
             }
-            //ViewData["OrderID"] = new SelectList(_context.Orders, "OrderID", "OrderID", orderDetail.OrderID);
-            //ViewData["ProductType"] = GetProductTypeSelectList();
-
             ViewBag.ProductType = new SelectList(Enum.GetValues(typeof(ProductType)));
             ViewBag.OrderID = new SelectList(_context.Orders, "OrderID", "OrderID");
             return View(orderDetail);
@@ -326,6 +334,7 @@ namespace LaptopStore.Controllers
         {
             if (id != orderDetail.OrderDetailID)
             {
+                _notyf.Error("ID chi tiết đơn hàng không khớp."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -354,12 +363,14 @@ namespace LaptopStore.Controllers
                     await UpdateOrderTotalPrice(orderDetail.OrderID);
 
                     await transaction.CommitAsync();
+                    _notyf.Success("Cập nhật chi tiết đơn hàng thành công!"); // Thêm thông báo thành công
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
                     ModelState.AddModelError("", "Có lỗi xảy ra khi cập nhật: " + ex.Message);
+                    _notyf.Error("Có lỗi xảy ra khi cập nhật chi tiết đơn hàng: " + ex.Message); // Thêm thông báo lỗi
                 }
             }
 
@@ -373,6 +384,7 @@ namespace LaptopStore.Controllers
         {
             if (id == null)
             {
+                _notyf.Error("ID chi tiết đơn hàng không hợp lệ."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -381,6 +393,7 @@ namespace LaptopStore.Controllers
                 .FirstOrDefaultAsync(m => m.OrderDetailID == id);
             if (orderDetail == null)
             {
+                _notyf.Error("Không tìm thấy chi tiết đơn hàng để xóa."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -399,6 +412,7 @@ namespace LaptopStore.Controllers
                     var orderDetail = await _context.OrderDetails.FindAsync(id);
                     if (orderDetail == null)
                     {
+                        _notyf.Error("Không tìm thấy chi tiết đơn hàng để xóa."); // Thêm thông báo lỗi
                         return NotFound();
                     }
 
@@ -413,12 +427,14 @@ namespace LaptopStore.Controllers
                     await UpdateOrderTotalPrice(orderDetail.OrderID);
 
                     await transaction.CommitAsync();
-                    return RedirectToAction(nameof(Index));
+                    _notyf.Success("Xóa chi tiết đơn hàng thành công."); // Thêm thông báo thành công
+                    return RedirectToAction("Details", "Orders", new { id = orderDetail.OrderID });
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
                     ModelState.AddModelError("", "Có lỗi xảy ra khi xóa: " + ex.Message);
+                    _notyf.Error("Có lỗi xảy ra khi xóa chi tiết đơn hàng: " + ex.Message); // Thêm thông báo lỗi
                     return View("Delete", await _context.OrderDetails
                         .Include(o => o.Order)
                         .FirstOrDefaultAsync(m => m.OrderDetailID == id));

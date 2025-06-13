@@ -9,6 +9,7 @@ using LaptopStore.Data;
 using LaptopStore.Models;
 using Microsoft.AspNetCore.Authorization;
 using LaptopStore.ViewModels;
+using AspNetCoreHero.ToastNotification.Abstractions; // Thêm dòng này
 
 namespace LaptopStore.Controllers
 {
@@ -16,10 +17,12 @@ namespace LaptopStore.Controllers
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly INotyfService _notyf; // Khai báo INotyfService
 
-        public OrdersController(ApplicationDbContext context)
+        public OrdersController(ApplicationDbContext context, INotyfService notyf) // Thêm INotyfService vào constructor
         {
             _context = context;
+            _notyf = notyf; // Gán
         }
 
         // GET: Orders
@@ -34,6 +37,7 @@ namespace LaptopStore.Controllers
         {
             if (id == null)
             {
+                _notyf.Error("ID đơn hàng không hợp lệ."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -46,6 +50,7 @@ namespace LaptopStore.Controllers
 
             if (order == null)
             {
+                _notyf.Error("Không tìm thấy đơn hàng này."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -163,12 +168,6 @@ namespace LaptopStore.Controllers
         }
 
         // GET: Orders/Create
-        //public IActionResult Create()
-        //{
-        //    ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID");
-        //    ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID");
-        //    return View();
-        //}
         public IActionResult Create()
         {
             ViewData["CustomerID"] = _context.Customers
@@ -193,32 +192,57 @@ namespace LaptopStore.Controllers
         }
 
         // POST: Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderID,OrderDate,Paid,CustomerID,UserID")] Order order)
         {
-            //if (ModelState.IsValid)
-            
+            try
+            {
                 _context.Add(order);
                 await _context.SaveChangesAsync();
-                // Chuyển hướng đến trang chi tiết của đơn hàng vừa tạo trong OrdersController
+                _notyf.Success("Tạo đơn hàng thành công!"); // Thêm thông báo thành công
                 return RedirectToAction(nameof(Details), new { id = order.OrderID });
-            
+            }
+            catch (Exception ex)
+            {
+                _notyf.Error("Có lỗi xảy ra khi tạo đơn hàng: " + ex.Message); // Thêm thông báo lỗi
+                // Bạn có thể thêm ModelState.AddModelError nếu muốn hiển thị lỗi trên form
+                // ModelState.AddModelError("", "Có lỗi xảy ra khi tạo đơn hàng: " + ex.Message);
+            }
 
-            //ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID", order.CustomerID);
-            //ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID", order.UserID);
-            //return View(order);
+            // Nếu có lỗi, load lại ViewData cho dropdown và trả về view
+            ViewData["CustomerID"] = _context.Customers
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CustomerID.ToString(),
+                    Text = $"{c.FullName} - {c.Phone}"
+                }).ToList();
+
+            var username = User.Identity?.Name;
+            var user = _context.Users.FirstOrDefault(u => u.UserName == username);
+            if (user != null)
+            {
+                ViewData["UserID"] = user.UserID;
+                ViewData["UserFullName"] = user.UserName;
+            }
+            return View(order);
         }
 
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+            {
+                _notyf.Error("ID đơn hàng không hợp lệ."); // Thêm thông báo lỗi
+                return NotFound();
+            }
 
             var order = await _context.Orders.FindAsync(id);
-            if (order == null) return NotFound();
+            if (order == null)
+            {
+                _notyf.Error("Không tìm thấy đơn hàng để chỉnh sửa."); // Thêm thông báo lỗi
+                return NotFound();
+            }
 
             // Cập nhật ViewData cho dropdown
             ViewData["CustomerID"] = _context.Customers
@@ -239,39 +263,47 @@ namespace LaptopStore.Controllers
         }
 
         // POST: Orders/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("OrderID,OrderDate,Paid,CustomerID,UserID")] Order order)
         {
             if (id != order.OrderID)
             {
+                _notyf.Error("ID đơn hàng không khớp."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
-            
             try
             {
                 _context.Update(order);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Cập nhật đơn hàng thành công!"); // Thêm thông báo thành công
+                await RecalculateTotalPrice(order.OrderID);
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!OrderExists(order.OrderID))
                 {
+                    _notyf.Error("Không tìm thấy đơn hàng này trong quá trình cập nhật."); // Thêm thông báo lỗi
                     return NotFound();
                 }
                 else
                 {
+                    _notyf.Error("Có lỗi xảy ra khi cập nhật do xung đột dữ liệu. Vui lòng thử lại."); // Thêm thông báo lỗi
                     throw;
                 }
             }
+            catch (Exception ex)
+            {
+                _notyf.Error("Có lỗi xảy ra khi cập nhật đơn hàng: " + ex.Message); // Thêm thông báo lỗi
+            }
             return RedirectToAction(nameof(Index));
-            
-            ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID", order.CustomerID);
-            ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID", order.UserID);
-            return View(order);
+
+            // Dòng này có thể bị lỗi vì RedirectToAction đã được gọi trước đó trong khối try-catch.
+            // Nếu bạn muốn hiển thị lại form khi có lỗi, hãy di chuyển code này vào catch block và bỏ RedirectToAction.
+            // ViewData["CustomerID"] = new SelectList(_context.Customers, "CustomerID", "CustomerID", order.CustomerID);
+            // ViewData["UserID"] = new SelectList(_context.Users, "UserID", "UserID", order.UserID);
+            // return View(order);
         }
 
         // GET: Orders/Delete/5
@@ -279,6 +311,7 @@ namespace LaptopStore.Controllers
         {
             if (id == null)
             {
+                _notyf.Error("ID đơn hàng không hợp lệ."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -288,6 +321,7 @@ namespace LaptopStore.Controllers
                 .FirstOrDefaultAsync(m => m.OrderID == id);
             if (order == null)
             {
+                _notyf.Error("Không tìm thấy đơn hàng để xóa."); // Thêm thông báo lỗi
                 return NotFound();
             }
 
@@ -303,9 +337,14 @@ namespace LaptopStore.Controllers
             if (order != null)
             {
                 _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+                _notyf.Information("Đã xóa đơn hàng thành công."); // Thêm thông báo thành công
+            }
+            else
+            {
+                _notyf.Error("Không tìm thấy đơn hàng để xóa."); // Thêm thông báo lỗi
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -325,7 +364,7 @@ namespace LaptopStore.Controllers
 
             if (order == null)
             {
-                TempData["ErrorMessage"] = "Không tìm thấy đơn hàng.";
+                _notyf.Error("Không tìm thấy đơn hàng để tính toán lại tổng tiền."); // Thêm thông báo lỗi
                 return NotFound(); // Hoặc RedirectToAction("Index")
             }
 
@@ -341,11 +380,11 @@ namespace LaptopStore.Controllers
             {
                 _context.Update(order);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Đã tính lại tổng tiền đơn hàng thành công!";
+                _notyf.Success("Đã tính lại tổng tiền đơn hàng thành công!"); // Thêm thông báo thành công
             }
             catch (DbUpdateConcurrencyException)
             {
-                TempData["ErrorMessage"] = "Lỗi khi cập nhật tổng tiền do xung đột dữ liệu. Vui lòng thử lại.";
+                _notyf.Error("Lỗi khi cập nhật tổng tiền do xung đột dữ liệu. Vui lòng thử lại."); // Thêm thông báo lỗi
                 if (!OrderExists(order.OrderID))
                 {
                     return NotFound();
@@ -357,7 +396,7 @@ namespace LaptopStore.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Đã xảy ra lỗi không mong muốn: {ex.Message}";
+                _notyf.Error($"Đã xảy ra lỗi không mong muốn khi tính lại tổng tiền: {ex.Message}"); // Thêm thông báo lỗi
                 // Nên log lỗi chi tiết (ex)
             }
 
